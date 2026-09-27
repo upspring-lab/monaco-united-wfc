@@ -1,0 +1,28 @@
+.head {
+  background: var(--ink);
+  color: #fff;
+  overflow: hidden;
+}
+.inner {
+  padding-top: 72px;
+  padding-bottom: 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.bars {
+  display: flex;
+  gap: 7px;
+}
+.bars span {
+  width: 10px;
+  height: 44px;
+  background: var(--accent);
+}
+.intro {
+  max-width: 520px;
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--on-dark-2);
+}

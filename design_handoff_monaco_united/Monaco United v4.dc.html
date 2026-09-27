@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap">
+<style>
+:root{--color-accent:#e41f37;--color-accent-100:#fdecee;--color-accent-700:#b3122a;--color-text:#121214;--color-neutral-300:#d6d6d4;--color-neutral-500:#8d8d90;--color-neutral-700:#4a4a4f}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:#f5f5f4;color:#121214;font-family:Archivo,system-ui,sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:#b3122a}a:hover{color:#e41f37}
+img{display:block}
+button,input,textarea{font:inherit}
+::selection{background:#e41f37;color:#fff}
+:focus-visible{outline:2px solid #e41f37;outline-offset:2px}
+[data-strip]{scrollbar-width:none;-ms-overflow-style:none}
+[data-strip]::-webkit-scrollbar{display:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:0s!important}}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column;background:#f5f5f4;color:#121214">
+
+<header style="position:sticky;top:0;z-index:20;background:rgba(245,245,244,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(18,18,20,.1)">
+<nav style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;display:flex;align-items:center;gap:20px;min-height:68px;max-height:80px">
+<button onClick="{{ go.accueil }}" aria-label="Monaco United, accueil" style="all:unset;cursor:pointer;flex:none;display:flex;align-items:center;gap:12px;margin-right:auto">
+<img src="assets/logo-red.png" alt="" style="height:50px;width:auto">
+<span style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:22px;line-height:.9;letter-spacing:.01em">Monaco<br>United</span>
+</button>
+<div style="display:flex;gap:2px;align-items:center">
+<sc-for list="{{ menus }}" as="g" hint-placeholder-count="3">
+<div style="position:relative" onMouseEnter="{{ g.open }}" onMouseLeave="{{ closeMenu }}">
+<button onClick="{{ g.click }}" aria-expanded="{{ g.expanded }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:15px;padding:12px 12px;white-space:nowrap;color:{{ g.fg }};transition:color 150ms ease">{{ g.label }}<sc-if value="{{ g.hasItems }}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></sc-if></button>
+<sc-if value="{{ g.hasItems }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:100%;left:0;min-width:260px;padding-top:4px;opacity:{{ g.op }};transform:{{ g.tf }};pointer-events:{{ g.pe }};transform-origin:top left;transition:opacity {{ g.dur }} cubic-bezier(.23,1,.32,1),transform {{ g.dur }} cubic-bezier(.23,1,.32,1)">
+<div style="background:#fff;border-top:3px solid #e41f37;box-shadow:0 18px 40px rgba(18,18,20,.14);padding:8px;display:flex;flex-direction:column">
+<sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3"><a href="#" onClick="{{ it.go }}" style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:24px;line-height:1;text-decoration:none;padding:12px 14px;color:{{ it.fg }};transition:background-color 150ms ease" style-hover="background:#fdecee">{{ it.label }}</a></sc-for>
+</div>
+</div>
+</sc-if>
+</div>
+</sc-for>
+</div>
+<button onClick="{{ cycleLang }}" aria-label="Changer de langue" style="all:unset;cursor:pointer;flex:none;width:42px;height:42px;display:grid;place-items:center;border:1.5px solid rgba(18,18,20,.2);font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:13px;transition:transform 160ms cubic-bezier(.23,1,.32,1),border-color 150ms ease" style-hover="border-color:#121214" style-active="transform:scale(.97)">{{ langCode }}</button>
+<button onClick="{{ go.partenariat }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 22px;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:15px;white-space:nowrap;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease,color 150ms ease;height:42px;padding:0 18px;flex:none;background:#e41f37;color:#fff" style-hover="background:#b3122a" style-active="transform:scale(.97)">{{ t.cta }}</button>
+</nav>
+</header>
+
+<main ref="{{ mainRef }}" style="flex:1">
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{ heroBanner }}" hint-placeholder-val="{{ true }}">
+<section style="position:relative;background:#121214;height:clamp(520px,76vh,700px);border-bottom:1px solid rgba(255,255,255,.12);display:grid;grid-template-columns:clamp(210px,25vw,360px) minmax(0,1fr);overflow:hidden">
+<div data-reveal="down" style="position:relative;z-index:2;background:#e41f37;color:#fff;clip-path:polygon(0 0,100% 0,100% 91%,50% 100%,0 91%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:24px 20px 64px">
+<h1 style="margin:0;width:100%;display:flex;justify-content:center"><img src="assets/logo-white.png" alt="Monaco United" style="width:88%;max-width:280px;height:auto"></h1>
+<div style="font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:clamp(11px,1vw,13px);letter-spacing:.28em;text-align:center;line-height:1.7">Football féminin<br>Principauté de Monaco</div>
+</div>
+<div data-stagger="1" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding-left:4px">
+<div style="position:relative;overflow:hidden;background:#26262a"><img data-parallax="-5%,5%" data-axis="y" src="assets/ph18.jpg" alt="" style="position:absolute;left:0;top:-6%;width:100%;height:112%;object-fit:cover;object-position:50% 20%"></div>
+<div style="position:relative;overflow:hidden;background:#26262a"><img data-parallax="-5%,5%" data-axis="y" src="assets/ph13.jpg" alt="" style="position:absolute;left:0;top:-6%;width:100%;height:112%;object-fit:cover;object-position:50% 25%"></div>
+<div style="position:relative;overflow:hidden;background:#26262a"><img data-parallax="-5%,5%" data-axis="y" src="assets/ph10.jpg" alt="" style="position:absolute;left:0;top:-6%;width:100%;height:112%;object-fit:cover;object-position:50% 18%"></div>
+</div>
+</section>
+</sc-if>
+<sc-if value="{{ heroCrest }}" hint-placeholder-val="{{ true }}">
+<section style="background:#e41f37;color:#fff;overflow:hidden">
+<div style="--w:clamp(230px,26vw,380px);display:flex;flex-direction:column;align-items:center;padding:40px 16px 56px">
+<div data-reveal="up" style="width:var(--w);height:calc((var(--w) / 770) * 431);overflow:hidden;flex:none"><img src="assets/logo-white.png" alt="" style="width:calc((var(--w) / 770) * 1946);max-width:none;height:auto;margin-left:calc((var(--w) / 770) * -534);margin-top:calc((var(--w) / 770) * -117)"></div>
+<div style="position:relative;width:var(--w);aspect-ratio:770/1367;flex:none">
+<div data-stagger="1" style="position:absolute;inset:0;display:grid;grid-template-columns:128fr 193fr 128fr 193fr 128fr;align-items:start">
+<div style="grid-column:1;height:81%;position:relative;overflow:hidden;clip-path:polygon(0 0,100% 0,100% 100%,0 76.5%)"><img data-parallax="-6%,6%" data-axis="y" src="assets/ph10.jpg" alt="" style="position:absolute;left:0;top:-4%;width:100%;height:150%;object-fit:cover;object-position:50% 0%"></div>
+<div style="grid-column:3;height:100%;position:relative;overflow:hidden;clip-path:polygon(0 0,100% 0,100% 94.9%,50% 100%,0 94.9%)"><img data-parallax="-6%,6%" data-axis="y" src="assets/ph18.jpg" alt="" style="position:absolute;left:0;top:-8%;width:100%;height:116%;object-fit:cover;object-position:50% 22%"></div>
+<div style="grid-column:5;height:81%;position:relative;overflow:hidden;clip-path:polygon(0 0,100% 0,100% 76.5%,0 100%)"><img data-parallax="-6%,6%" data-axis="y" src="assets/ph19.jpg" alt="" style="position:absolute;left:0;top:-4%;width:100%;height:150%;object-fit:cover;object-position:50% 0%"></div>
+</div>
+<div style="position:absolute;top:24.87%;height:19.39%;left:50%;width:100vw;transform:translateX(-50%);background:#e41f37;display:grid;place-items:center">
+<h1 data-reveal="up" data-delay="220" style="font-family:Archivo,sans-serif;font-weight:800;text-transform:uppercase;font-stretch:112%;font-size:calc((var(--w) / 770) * 164);line-height:1;letter-spacing:-.005em;margin:0;white-space:nowrap">Monaco United</h1>
+</div>
+</div>
+<div data-reveal="up" data-delay="320" style="font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:clamp(12px,1.2vw,15px);letter-spacing:.34em;margin-top:28px;text-align:center">Football féminin, Principauté de Monaco</div>
+</div>
+</section>
+</sc-if>
+<sc-if value="{{ heroCarousel }}" hint-placeholder-val="{{ false }}">
+<section style="position:relative;height:min(86vh,820px);min-height:560px;overflow:hidden;background:#121214;color:#fff">
+<sc-for list="{{ slides }}" as="sl" hint-placeholder-count="1">
+<article data-slide="{{ $index }}" style="position:absolute;inset:0;opacity:{{ sl.op }};pointer-events:{{ sl.pe }};transition:opacity 450ms ease">
+<img data-slide-img="1" src="{{ sl.img }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:{{ sl.pos }}">
+<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(18,18,20,.9) 0%,rgba(18,18,20,.4) 42%,rgba(18,18,20,0) 68%)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;padding-bottom:112px">
+<div data-slide-text="1" style="display:flex;flex-direction:column;align-items:flex-start;gap:18px">
+<span style="background:#e41f37;color:#fff;padding:6px 11px;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:13px">{{ sl.cat }}</span>
+<h1 style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:clamp(44px,5vw,80px);line-height:.88;margin:0;max-width:24ch;text-wrap:balance">{{ sl.title }}</h1>
+<button onClick="{{ go.actus }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 22px;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:15px;white-space:nowrap;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease,color 150ms ease;background:#e41f37;color:#fff" style-hover="background:#b3122a" style-active="transform:scale(.97)">Lire l'article <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></button>
+</div>
+</div>
+</article>
+</sc-for>
+<div style="position:absolute;left:0;right:0;bottom:36px;max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;display:flex;justify-content:flex-end;align-items:center;gap:14px">
+<div style="display:flex;gap:6px">
+<sc-for list="{{ bars }}" as="b" hint-placeholder-count="3"><button onClick="{{ b.go }}" aria-label="{{ b.label }}" style="all:unset;cursor:pointer;width:56px;height:24px;display:flex;align-items:center"><span style="display:block;width:100%;height:3px;background:rgba(255,255,255,.28);overflow:hidden"><span style="display:block;height:100%;background:#e41f37;transform:scaleX({{ b.sx }});transform-origin:left;transition:transform {{ b.dur }} linear"></span></span></button></sc-for>
+</div>
+<button onClick="{{ prevSlide }}" aria-label="Précédent" style="all:unset;cursor:pointer;width:48px;height:48px;display:grid;place-items:center;border:1.5px solid rgba(255,255,255,.5);transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease" style-hover="background:rgba(255,255,255,.14)" style-active="transform:scale(.97)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button>
+<button onClick="{{ nextSlide }}" aria-label="Suivant" style="all:unset;cursor:pointer;width:48px;height:48px;display:grid;place-items:center;border:1.5px solid rgba(255,255,255,.5);transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease" style-hover="background:rgba(255,255,255,.14)" style-active="transform:scale(.97)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></button>
+</div>
+</section>
+</sc-if>
+
+<section style="background:{{ matchBg }};color:#fff">
+<div style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;padding-top:40px;padding-bottom:40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:32px;align-items:center">
+<div data-reveal="left" style="display:flex;align-items:center;gap:20px">
+<img src="assets/logo-white.png" alt="" style="height:84px;width:auto">
+<span style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:28px;opacity:.7">vs</span>
+<div style="width:84px;height:84px;display:grid;place-items:center;border:1.5px dashed rgba(255,255,255,.6);font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:11px">Écusson</div>
+<div><div style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:34px;line-height:.9">{{ next.opp }}</div><div style="font-size:15px;margin-top:6px;opacity:.9">{{ next.dateLong }}, {{ next.heure }}</div></div>
+</div>
+<div data-stagger="1" style="display:flex;gap:10px;justify-content:center">
+<sc-for list="{{ cdList }}" as="c" hint-placeholder-count="4"><div style="min-width:78px;text-align:center"><div style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:64px;line-height:.9;font-variant-numeric:tabular-nums">{{ c.v }}</div><div style="font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:11px;opacity:.85;margin-top:4px">{{ c.lLong }}</div></div></sc-for>
+</div>
+<div style="display:flex;justify-content:flex-end"><button onClick="{{ go.calendrier }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 22px;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:15px;white-space:nowrap;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease,color 150ms ease;border:1.5px solid #fff;color:#fff" style-hover="background:#fff;color:#121214" style-active="transform:scale(.97)">Calendrier <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></button></div>
+</div>
+</section>
+
+<section style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;padding-top:104px;padding-bottom:24px">
+<div style="display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:36px"><h2 data-reveal="up" style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:clamp(48px,6.4vw,96px);line-height:.86;margin:0">Actualités</h2><button onClick="{{ go.actus }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 22px;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:15px;white-space:nowrap;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease,color 150ms ease;border:1.5px solid #121214;color:#121214" style-hover="background:#121214;color:#fff" style-active="transform:scale(.97)">Tout voir <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></button></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:36px">
+<article onClick="{{ go.actus }}" style="cursor:pointer;display:flex;flex-direction:column;gap:18px">
+<div data-reveal="clip" style="aspect-ratio:4/3;overflow:hidden"><img src="{{ lead.img }}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:{{ lead.pos }};transition:transform 400ms cubic-bezier(.23,1,.32,1)" style-hover="transform:scale(1.04)"></div>
+<div data-reveal="up" style="display:flex;flex-direction:column;gap:10px"><span style="font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:13px;color:#e41f37">{{ lead.cat }}</span><h3 style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:clamp(34px,3.4vw,52px);line-height:.9;margin:0;text-wrap:balance">{{ lead.title }}</h3><p style="margin:0;color:#4a4a4f;max-width:52ch">{{ lead.excerpt }}</p></div>
+</article>
+<div data-stagger="1" style="display:flex;flex-direction:column">
+<sc-for list="{{ newsList }}" as="n" hint-placeholder-count="4">
+<article onClick="{{ go.actus }}" style="cursor:pointer;display:grid;grid-template-columns:148px minmax(0,1fr);gap:20px;align-items:center;padding:18px 0;border-top:1px solid rgba(18,18,20,.12)">
+<div style="aspect-ratio:1/1;overflow:hidden"><img src="{{ n.img }}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:{{ n.pos }};transition:transform 400ms cubic-bezier(.23,1,.32,1)" style-hover="transform:scale(1.05)"></div>
+<div><div style="font-size:13px;color:#6b6b70">{{ n.cat }}, {{ n.date }}</div><div style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:26px;line-height:.95;margin-top:6px;text-wrap:balance">{{ n.title }}</div></div>
+</article>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section style="overflow:hidden;padding:96px 0 72px">
+<div data-parallax="0%,-28%" style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;white-space:nowrap;font-size:clamp(96px,15vw,240px);line-height:.85;color:#e41f37">Monaco United  Monaco United  Monaco United</div>
+<div data-parallax="-28%,0%" style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;white-space:nowrap;font-size:clamp(96px,15vw,240px);line-height:.85;color:transparent;-webkit-text-stroke:2px #121214">Jouer pour la Principauté  Jouer pour la Principauté</div>
+</section>
+
+<section style="background:#121214;color:#fff;overflow:hidden">
+<div style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;padding-top:88px;padding-bottom:88px">
+<div style="display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:40px"><h2 data-reveal="up" style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:clamp(48px,6.4vw,96px);line-height:.86;margin:0">Les joueuses</h2><div style="display:flex;gap:16px;align-items:center"><div style="display:flex;gap:8px"><button onClick="{{ stripPrev }}" aria-label="Précédent" style="all:unset;cursor:pointer;width:48px;height:48px;display:grid;place-items:center;border:1.5px solid rgba(255,255,255,.5);color:#fff;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease" style-hover="background:rgba(255,255,255,.14)" style-active="transform:scale(.97)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button><button onClick="{{ stripNext }}" aria-label="Suivant" style="all:unset;cursor:pointer;width:48px;height:48px;display:grid;place-items:center;border:1.5px solid rgba(255,255,255,.5);color:#fff;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease" style-hover="background:rgba(255,255,255,.14)" style-active="transform:scale(.97)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></button></div><button onClick="{{ go.equipe }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 22px;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:15px;white-space:nowrap;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease,color 150ms ease;border:1.5px solid #fff;color:#fff" style-hover="background:#fff;color:#121214" style-active="transform:scale(.97)">Effectif <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></button></div></div>
+<div data-strip="1" data-stagger="1" style="display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth">
+<sc-for list="{{ squadTop }}" as="p" hint-placeholder-count="6">
+<div style="scroll-snap-align:start;display:flex;flex-direction:column;gap:14px">
+<div style="position:relative;aspect-ratio:3/4.2;overflow:hidden;background:#e41f37;clip-path:polygon(0 0,100% 0,100% 90%,50% 100%,0 90%)"><img src="{{ p.img }}" alt="{{ p.name }}" style="width:100%;height:100%;object-fit:cover;object-position:50% 20%;transition:transform 400ms cubic-bezier(.23,1,.32,1)" style-hover="transform:scale(1.05)"><span style="position:absolute;top:12px;left:14px;font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:56px;line-height:1;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.35)">{{ p.num }}</span></div>
+<div><div style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:24px;line-height:.95">{{ p.name }}</div><div style="font-size:14px;color:rgba(255,255,255,.65);margin-top:4px">{{ p.pos }}</div></div>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;padding-top:104px;padding-bottom:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:36px;align-items:stretch">
+<div>
+<div style="display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:28px"><h2 data-reveal="up" style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:clamp(48px,6.4vw,96px);line-height:.86;margin:0">Classement</h2><button onClick="{{ go.classement }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 22px;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:15px;white-space:nowrap;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease,color 150ms ease;border:1.5px solid #121214;color:#121214" style-hover="background:#121214;color:#fff" style-active="transform:scale(.97)">Complet <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></button></div>
+<div data-stagger="1" style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ top3 }}" as="r" hint-placeholder-count="3">
+<div style="display:grid;grid-template-columns:64px minmax(0,1fr) auto;align-items:center;gap:16px;padding:18px 22px;background:{{ r.bgSolid }}">
+<span style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:48px;line-height:.9;color:{{ r.posFg }}">{{ r.pos }}</span>
+<div><div style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:26px;line-height:.95">{{ r.team }}</div><div style="font-size:13px;color:#6b6b70;margin-top:2px">{{ r.g }} V, {{ r.n }} N, {{ r.p }} D</div></div>
+<span style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:44px;line-height:.9">{{ r.pts }}<span style="font-size:15px;color:#6b6b70"> pts</span></span>
+</div>
+</sc-for>
+</div>
+</div>
+<div data-reveal="clip" style="position:relative;min-height:380px;overflow:hidden;background:#e41f37;color:#fff;display:flex;flex-direction:column;justify-content:flex-end">
+<div style="position:absolute;inset:0;overflow:hidden"><img data-parallax="-8%,8%" data-axis="y" src="assets/ph07.jpg" alt="" style="position:absolute;left:0;top:-10%;width:100%;height:120%;object-fit:cover;opacity:.4;mix-blend-mode:multiply"></div>
+<div style="position:relative;padding:32px;display:flex;flex-direction:column;gap:16px;align-items:flex-start">
+<h2 style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:clamp(48px,6.4vw,96px);line-height:.86;margin:0">L'académie</h2>
+<p style="margin:0;font-size:17px;max-width:360px">De U9 à U18, la formation des joueuses de la Principauté.</p>
+<button onClick="{{ go.academie }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 22px;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:15px;white-space:nowrap;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease,color 150ms ease;border:1.5px solid #fff;color:#fff" style-hover="background:#fff;color:#121214" style-active="transform:scale(.97)">Découvrir <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></button>
+</div>
+</div>
+</section>
+
+<section style="background:#121214;color:#fff;margin-top:104px">
+<div style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;padding-top:88px;padding-bottom:80px">
+<div style="display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:36px"><h2 data-reveal="up" style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:clamp(48px,6.4vw,96px);line-height:.86;margin:0">Vidéos</h2><div style="display:flex;gap:16px;align-items:center"><span style="font-size:14px;color:rgba(255,255,255,.6)">Contenus à venir</span><div style="display:flex;gap:8px"><button onClick="{{ stripPrev }}" aria-label="Précédent" style="all:unset;cursor:pointer;width:48px;height:48px;display:grid;place-items:center;border:1.5px solid rgba(255,255,255,.5);color:#fff;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease" style-hover="background:rgba(255,255,255,.14)" style-active="transform:scale(.97)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button><button onClick="{{ stripNext }}" aria-label="Suivant" style="all:unset;cursor:pointer;width:48px;height:48px;display:grid;place-items:center;border:1.5px solid rgba(255,255,255,.5);color:#fff;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease" style-hover="background:rgba(255,255,255,.14)" style-active="transform:scale(.97)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></button></div></div></div>
+<div data-strip="1" data-stagger="1" style="display:grid;grid-auto-flow:column;grid-auto-columns:minmax(200px,240px);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth">
+<sc-for list="{{ videos }}" as="v" hint-placeholder-count="5">
+<article style="scroll-snap-align:start;display:flex;flex-direction:column;gap:12px;cursor:pointer">
+<div style="position:relative;aspect-ratio:9/16;overflow:hidden;background:#26262a"><img src="{{ v.img }}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:50% 25%;transition:transform 400ms cubic-bezier(.23,1,.32,1)" style-hover="transform:scale(1.05)"><span style="position:absolute;left:14px;bottom:14px;width:48px;height:48px;display:grid;place-items:center;background:#e41f37;color:#fff"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"></path></svg></span></div>
+<div style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:20px;line-height:1">{{ v.title }}</div>
+</article>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;padding-top:104px;padding-bottom:24px">
+<h2 data-reveal="up" style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:clamp(48px,6.4vw,96px);line-height:.86;margin:0;margin-bottom:36px">Galerie</h2>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:clamp(140px,18vw,240px);gap:8px">
+<sc-for list="{{ gallery }}" as="gph" hint-placeholder-count="6"><div data-reveal="clip" style="grid-column:span {{ gph.c }};grid-row:span {{ gph.r }};position:relative;overflow:hidden"><img data-parallax="-6%,6%" data-axis="y" src="{{ gph.img }}" alt="" style="position:absolute;left:0;top:-8%;width:100%;height:116%;object-fit:cover;object-position:50% 30%"></div></sc-for>
+</div>
+</section>
+
+<section style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;padding-top:104px">
+<div data-reveal="up" style="background:#e41f37;color:#fff;padding:48px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:32px;align-items:center">
+<div><h2 style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:clamp(44px,5vw,72px);line-height:.86;margin:0">Newsletter</h2><p style="margin:12px 0 0;font-size:17px">Matchs, résultats et coulisses, une fois par semaine.</p></div>
+<sc-if value="{{ nlDone }}" hint-placeholder-val="{{ false }}"><div style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:32px;line-height:.95">Inscription confirmée. Merci !</div></sc-if>
+<sc-if value="{{ nlTodo }}" hint-placeholder-val="{{ true }}"><form onSubmit="{{ nlSubmit }}" style="display:flex;gap:10px;flex-wrap:wrap;align-items:end"><div style="flex:1;min-width:220px"><label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">E-mail</label><input type="email" required placeholder="vous@exemple.com" style="width:100%;box-sizing:border-box;height:48px;padding:0 14px;border:1.5px solid #fff;background:#fff;font:inherit;font-size:15px;color:#121214;border-radius:0" style-focus="outline:2px solid #121214;outline-offset:2px"></div><button type="submit" style="all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 22px;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:15px;white-space:nowrap;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease,color 150ms ease;background:#121214;color:#fff" style-hover="background:#000" style-active="transform:scale(.97)">Je m'inscris</button></form></sc-if>
+</div>
+</section>
+
+<section style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;padding-top:96px;padding-bottom:96px">
+<div style="font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:13px;color:#6b6b70;margin-bottom:20px">Nos partenaires</div>
+<div data-stagger="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:8px">
+<sc-for list="{{ partnersStrip }}" as="s" hint-placeholder-count="4"><div style="height:112px;display:grid;place-items:center;background:#fff;font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:24px;color:{{ s.fg }}">{{ s.name }}</div></sc-for>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isInner }}" hint-placeholder-val="{{ false }}"><section style="background:#121214;color:#fff;overflow:hidden"><div style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;padding-top:72px;padding-bottom:56px;display:flex;flex-direction:column;gap:20px"><div data-reveal="up" style="display:flex;gap:7px"><span style="width:10px;height:44px;background:#e41f37"></span><span style="width:10px;height:44px;background:#e41f37"></span><span style="width:10px;height:44px;background:#e41f37"></span></div><h1 data-reveal="up" style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:clamp(64px,11vw,176px);line-height:.84;margin:0">{{ head.title }}</h1><p data-reveal="up" data-delay="90" style="max-width:520px;margin:0;font-size:17px;line-height:1.5;color:rgba(255,255,255,.78);text-wrap:pretty">{{ head.intro }}</p></div></section></sc-if>
+
+<sc-if value="{{ isEquipe }}" hint-placeholder-val="{{ false }}">
+<section style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;padding-top:40px;padding-bottom:104px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:40px">
+<div role="tablist" style="position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:min(100%,380px);border:1.5px solid #121214">
+<span style="position:absolute;top:0;bottom:0;left:0;width:50%;background:#e41f37;transform:translateX({{ viewX }});transition:transform 300ms cubic-bezier(.77,0,.175,1)"></span>
+<sc-for list="{{ viewTabs }}" as="v" hint-placeholder-count="2"><button role="tab" aria-selected="{{ v.sel }}" onClick="{{ v.go }}" style="all:unset;position:relative;z-index:1;cursor:pointer;height:56px;display:grid;place-items:center;font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:26px;color:{{ v.fg }};transition:color 200ms ease">{{ v.label }}</button></sc-for>
+</div>
+<sc-if value="{{ isPlayersView }}" hint-placeholder-val="{{ true }}">
+<div style="position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));width:min(100%,640px);background:#fff">
+<span style="position:absolute;top:0;bottom:0;left:0;width:20%;background:#121214;transform:translateX({{ lineX }});transition:transform 280ms cubic-bezier(.77,0,.175,1)"></span>
+<sc-for list="{{ lineTabs }}" as="f" hint-placeholder-count="5"><button onClick="{{ f.go }}" style="all:unset;position:relative;z-index:1;cursor:pointer;height:44px;display:grid;place-items:center;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:13px;color:{{ f.fg }};transition:color 200ms ease">{{ f.label }}</button></sc-for>
+</div>
+</sc-if>
+</div>
+<sc-if value="{{ isPlayersView }}" hint-placeholder-val="{{ true }}">
+<div data-squad-grid="1" data-stagger="1" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:40px 20px">
+<sc-for list="{{ squadShown }}" as="p" hint-placeholder-count="8">
+<div style="display:flex;flex-direction:column;gap:14px">
+<div style="position:relative;aspect-ratio:3/4.2;overflow:hidden;background:#e41f37;clip-path:polygon(0 0,100% 0,100% 90%,50% 100%,0 90%)"><img src="{{ p.img }}" alt="{{ p.name }}" style="width:100%;height:100%;object-fit:cover;object-position:50% 18%;transition:transform 400ms cubic-bezier(.23,1,.32,1)" style-hover="transform:scale(1.05)"><span style="position:absolute;top:12px;left:14px;font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:56px;line-height:1;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.35)">{{ p.num }}</span></div>
+<div><div style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:26px;line-height:.95">{{ p.name }}</div><div style="font-size:14px;color:#6b6b70;margin-top:4px">{{ p.pos }}, {{ p.nat }}</div></div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ isStaffView }}" hint-placeholder-val="{{ false }}">
+<div data-squad-grid="1" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:40px 20px">
+<sc-for list="{{ staff }}" as="st" hint-placeholder-count="6">
+<div style="display:flex;flex-direction:column;gap:14px">
+<div style="position:relative;aspect-ratio:3/4.2;overflow:hidden;background:#121214;clip-path:polygon(0 0,100% 0,100% 90%,50% 100%,0 90%);display:grid;place-items:center">
+<img src="{{ st.img }}" alt="{{ st.name }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 18%;opacity:{{ st.imgOp }};transition:transform 400ms cubic-bezier(.23,1,.32,1)" style-hover="transform:scale(1.05)">
+<span style="position:relative;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:12px;color:rgba(255,255,255,.55);opacity:{{ st.phOp }}">Photo à venir</span>
+</div>
+<div><div style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:26px;line-height:.95">{{ st.name }}</div><div style="font-size:14px;color:#6b6b70;margin-top:4px">{{ st.role }}</div></div>
+</div>
+</sc-for>
+</div>
+<p style="margin:32px 0 0;font-size:13px;color:#6b6b70">Staff à compléter avec les noms et photos du club.</p>
+</sc-if>
+</section>
+</sc-if>
+
+<sc-if value="{{ isCalendrier }}" hint-placeholder-val="{{ false }}">
+<section style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;max-width:1120px;padding-top:40px;padding-bottom:104px">
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:32px">
+<sc-for list="{{ venueTabs }}" as="f" hint-placeholder-count="3"><button onClick="{{ f.go }}" style="all:unset;cursor:pointer;height:42px;padding:0 18px;display:flex;align-items:center;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:14px;background:{{ f.bg }};color:{{ f.fg }};border:1.5px solid #121214;transition:background-color 150ms ease,transform 160ms cubic-bezier(.23,1,.32,1)" style-active="transform:scale(.97)">{{ f.label }}</button></sc-for>
+</div>
+<div data-stagger="1" style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ fixturesShown }}" as="m" hint-placeholder-count="8">
+<div style="display:grid;grid-template-columns:96px minmax(0,1fr) 110px 120px;gap:20px;align-items:center;padding:20px 22px;background:#fff;border-left:4px solid {{ m.cBd }}">
+<div><div style="font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:12px;color:#e41f37">{{ m.jl }}</div><div style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:26px;line-height:1">{{ m.date }}</div></div>
+<div style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:clamp(20px,2.2vw,30px);line-height:1">{{ m.home }} <span style="color:#8d8d90">vs</span> {{ m.away }}</div>
+<div style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:36px;text-align:center;font-variant-numeric:tabular-nums">{{ m.center }}</div>
+<div style="display:flex;justify-content:flex-end"><span style="padding:6px 10px;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:12px;background:{{ m.cBg }};color:{{ m.cFg }};border:1.5px solid {{ m.cBd }}">{{ m.tagLabel }}</span></div>
+</div>
+</sc-for>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isClassement }}" hint-placeholder-val="{{ false }}">
+<section style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;max-width:1120px;padding-top:40px;padding-bottom:104px;overflow-x:auto">
+<table style="width:100%;min-width:680px;border-collapse:collapse;font-size:15px">
+<thead><tr style="font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:12px;color:#6b6b70;text-align:left"><th style="padding:12px 10px">#</th><th style="padding:12px 10px">Club</th><th style="padding:12px 10px;text-align:right">J</th><th style="padding:12px 10px;text-align:right">V</th><th style="padding:12px 10px;text-align:right">N</th><th style="padding:12px 10px;text-align:right">D</th><th style="padding:12px 10px;text-align:right">Diff</th><th style="padding:12px 10px">Forme</th><th style="padding:12px 10px;text-align:right">Pts</th></tr></thead>
+<tbody data-stagger="1">
+<sc-for list="{{ table }}" as="r" hint-placeholder-count="12"><tr style="background:{{ r.bg }};font-weight:{{ r.fw }};border-top:1px solid rgba(18,18,20,.1)">
+<td style="padding:16px 10px;font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:24px;border-left:4px solid {{ r.edge }}">{{ r.pos }}</td><td style="padding:16px 10px">{{ r.team }}</td><td style="text-align:right;padding:0 10px">{{ r.j }}</td><td style="text-align:right;padding:0 10px">{{ r.g }}</td><td style="text-align:right;padding:0 10px">{{ r.n }}</td><td style="text-align:right;padding:0 10px">{{ r.p }}</td><td style="text-align:right;padding:0 10px;font-variant-numeric:tabular-nums">{{ r.diff }}</td>
+<td style="padding:0 10px"><div style="display:flex;gap:3px"><sc-for list="{{ r.form }}" as="fo" hint-placeholder-count="3"><span style="width:22px;height:22px;display:grid;place-items:center;font-size:11px;font-weight:700;background:{{ fo.bg }};color:{{ fo.fg }}">{{ fo.l }}</span></sc-for></div></td>
+<td style="text-align:right;padding:0 10px;font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:28px">{{ r.pts }}</td></tr></sc-for>
+</tbody></table>
+<div style="display:flex;gap:24px;margin-top:20px;font-size:13px;color:#4a4a4f;flex-wrap:wrap"><span style="display:flex;gap:8px;align-items:center"><span style="width:12px;height:12px;background:#e41f37"></span>Montée</span><span style="display:flex;gap:8px;align-items:center"><span style="width:12px;height:12px;background:#8d8d90"></span>Relégation</span><span style="margin-left:auto">Chiffres provisoires sauf Monaco United, à brancher sur le classement FFF.</span></div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isActus }}" hint-placeholder-val="{{ false }}">
+<section style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;padding-top:56px;padding-bottom:104px">
+<article style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:40px;align-items:center;margin-bottom:88px">
+<div data-reveal="clip" style="aspect-ratio:16/11;overflow:hidden"><img src="{{ lead.img }}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:{{ lead.pos }}"></div>
+<div data-reveal="up" style="display:flex;flex-direction:column;gap:14px;align-items:flex-start"><span style="background:#e41f37;color:#fff;padding:6px 11px;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:13px">{{ lead.cat }}</span><h2 style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:clamp(40px,4.6vw,72px);line-height:.88;margin:0;text-wrap:balance">{{ lead.title }}</h2><p style="font-size:17px;color:#4a4a4f;max-width:460px;margin:0">{{ lead.excerpt }}</p><button style="all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 22px;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:15px;white-space:nowrap;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease,color 150ms ease;border:1.5px solid #121214;color:#121214" style-hover="background:#121214;color:#fff" style-active="transform:scale(.97)">Lire l'article <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></button></div>
+</article>
+<div data-stagger="1" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:48px 28px">
+<sc-for list="{{ newsRest }}" as="n" hint-placeholder-count="4">
+<article style="display:flex;flex-direction:column;gap:14px;cursor:pointer">
+<div style="aspect-ratio:4/3;overflow:hidden"><img src="{{ n.img }}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:{{ n.pos }};transition:transform 400ms cubic-bezier(.23,1,.32,1)" style-hover="transform:scale(1.05)"></div>
+<div style="font-size:13px;color:#6b6b70">{{ n.cat }}, {{ n.date }}</div>
+<h3 style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:30px;line-height:.92;margin:0;text-wrap:balance">{{ n.title }}</h3>
+<p style="margin:0;font-size:15px;color:#4a4a4f">{{ n.excerpt }}</p>
+</article>
+</sc-for>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isAcademie }}" hint-placeholder-val="{{ false }}">
+<section style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;padding-top:56px;padding-bottom:104px">
+<div data-reveal="clip" style="position:relative;aspect-ratio:21/8;overflow:hidden;margin-bottom:64px"><img data-parallax="-8%,8%" data-axis="y" src="assets/ph07.jpg" alt="Entraînement" style="position:absolute;left:0;top:-10%;width:100%;height:120%;object-fit:cover;object-position:50% 45%"></div>
+<div data-stagger="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:8px">
+<sc-for list="{{ categories }}" as="c" hint-placeholder-count="5">
+<div style="background:#fff;padding:28px 24px;display:flex;flex-direction:column;gap:12px;border-top:4px solid #e41f37">
+<div style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:80px;line-height:.82;color:#e41f37">{{ c.code }}</div>
+<div style="font-size:14px;color:#6b6b70">Nées en {{ c.years }}</div>
+<div style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:22px;line-height:1">{{ c.focus }}</div>
+<div style="font-size:14px;color:#4a4a4f;margin-top:auto;padding-top:14px;border-top:1px solid rgba(18,18,20,.1)">{{ c.slots }}</div>
+</div>
+</sc-for>
+</div>
+<div data-reveal="up" style="margin-top:72px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap">
+<h2 style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:clamp(40px,4.6vw,64px);line-height:.88;margin:0">Envie de rejoindre l'académie ?</h2>
+<button onClick="{{ go.essai }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 22px;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:15px;white-space:nowrap;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease,color 150ms ease;background:#e41f37;color:#fff" style-hover="background:#b3122a" style-active="transform:scale(.97)">Demander un essai <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></button>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isPartenaires }}" hint-placeholder-val="{{ false }}">
+<section style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;padding-top:56px;padding-bottom:104px">
+<div data-stagger="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:8px">
+<div style="background:#fff;padding:36px;min-height:280px;display:flex;flex-direction:column;gap:18px"><div style="font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:13px;color:#e41f37">Partenaire principal</div><div style="flex:1;display:grid;place-items:center;font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:48px;color:#e41f37">Groupe Marzocco</div><div style="font-size:14px;color:#6b6b70">Face avant du maillot</div></div>
+<div style="background:#fff;padding:36px;min-height:280px;display:flex;flex-direction:column;gap:18px"><div style="font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:13px;color:#e41f37">Équipementier</div><div style="flex:1;display:grid;place-items:center;font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:48px">Erreà</div><div style="font-size:14px;color:#6b6b70">Tenues match et entraînement</div></div>
+</div>
+<div style="margin-top:104px;display:flex;flex-direction:column;gap:20px;max-width:760px">
+<h2 data-reveal="up" style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:clamp(56px,7vw,112px);line-height:.84;margin:0">Devenez <span style="color:#e41f37">partenaire</span></h2>
+<p data-reveal="up" data-delay="90" style="font-size:18px;color:#4a4a4f;margin:0;max-width:56ch">Associez votre marque à un club ambitieux, visible en Principauté et sur la Côte d'Azur.</p>
+</div>
+<div data-stagger="1" style="margin-top:48px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:8px">
+<sc-for list="{{ offers }}" as="o" hint-placeholder-count="4"><div style="background:#121214;color:#fff;padding:32px 26px;display:flex;flex-direction:column;gap:14px;min-height:220px"><h3 style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:40px;line-height:.9;margin:0">{{ o.t }}</h3><p style="margin:0;font-size:15px;color:rgba(255,255,255,.75)">{{ o.d }}</p></div></sc-for>
+</div>
+<div style="margin-top:40px"><button onClick="{{ go.partenariat }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 22px;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:15px;white-space:nowrap;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease,color 150ms ease;background:#e41f37;color:#fff" style-hover="background:#b3122a" style-active="transform:scale(.97)">Devenir partenaire <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></button></div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isContact }}" hint-placeholder-val="{{ false }}">
+<section style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;padding-top:56px;padding-bottom:104px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:56px">
+<div style="display:flex;flex-direction:column;gap:8px">
+<div data-reveal="up" style="aspect-ratio:16/10;background:#e7e7e6;overflow:hidden"><iframe title="Stade Didier Deschamps, Cap-d'Ail" src="https://www.google.com/maps?q=Stade+Didier+Deschamps,+Cap-d%27Ail&amp;z=15&amp;output=embed" style="width:100%;height:100%;border:0;display:block;filter:grayscale(1) contrast(1.05)" loading="lazy"></iframe></div>
+<div data-stagger="1" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+<sc-for list="{{ infos }}" as="i" hint-placeholder-count="4"><div style="background:#fff;padding:20px 22px"><div style="font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:12px;color:#e41f37">{{ i.k }}</div><div style="font-size:15px;margin-top:6px">{{ i.v }}</div></div></sc-for>
+</div>
+</div>
+<div data-reveal="up">
+<sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;padding:44px;display:flex;flex-direction:column;gap:14px;align-items:flex-start;border-top:4px solid #e41f37"><h2 style="font-family:Archivo,sans-serif;font-stretch:72%;font-weight:800;text-transform:uppercase;letter-spacing:-.005em;font-size:56px;line-height:.86;margin:0">Message envoyé</h2><p style="margin:0;color:#4a4a4f">Merci ! Nous revenons vers vous sous 48 h.</p><button onClick="{{ resetForm }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 22px;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:15px;white-space:nowrap;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease,color 150ms ease;border:1.5px solid #121214;color:#121214" style-hover="background:#121214;color:#fff" style-active="transform:scale(.97)">Nouveau message</button></div>
+</sc-if>
+<sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
+<form onSubmit="{{ submit }}" style="display:flex;flex-direction:column;gap:20px">
+<div><span style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#3a3a3f">Objet</span><div style="display:flex;gap:6px;flex-wrap:wrap">
+<sc-for list="{{ subjects }}" as="s" hint-placeholder-count="4"><button type="button" onClick="{{ s.go }}" style="all:unset;cursor:pointer;height:40px;padding:0 16px;display:flex;align-items:center;font-size:14px;font-weight:600;background:{{ s.bg }};color:{{ s.fg }};border:1.5px solid #121214;transition:background-color 150ms ease,transform 160ms cubic-bezier(.23,1,.32,1)" style-active="transform:scale(.97)">{{ s.label }}</button></sc-for>
+</div></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:16px">
+<div><label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#3a3a3f">Nom</label><input required placeholder="Votre nom" style="width:100%;box-sizing:border-box;height:48px;padding:0 14px;border:1.5px solid rgba(18,18,20,.22);background:#fff;font:inherit;font-size:15px;color:#121214;border-radius:0" style-focus="border-color:#e41f37;outline:none"></div>
+<div><label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#3a3a3f">E-mail</label><input type="email" required placeholder="vous@exemple.com" style="width:100%;box-sizing:border-box;height:48px;padding:0 14px;border:1.5px solid rgba(18,18,20,.22);background:#fff;font:inherit;font-size:15px;color:#121214;border-radius:0" style-focus="border-color:#e41f37;outline:none"></div>
+</div>
+<sc-if value="{{ isPartnerSubject }}" hint-placeholder-val="{{ false }}"><div><label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#3a3a3f">Entreprise</label><input placeholder="Nom de votre entreprise" style="width:100%;box-sizing:border-box;height:48px;padding:0 14px;border:1.5px solid rgba(18,18,20,.22);background:#fff;font:inherit;font-size:15px;color:#121214;border-radius:0" style-focus="border-color:#e41f37;outline:none"></div></sc-if>
+<div><label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#3a3a3f">Message</label><textarea rows="6" placeholder="Votre message" style="width:100%;box-sizing:border-box;padding:12px 14px;border:1.5px solid rgba(18,18,20,.22);background:#fff;font:inherit;font-size:15px;color:#121214;border-radius:0;resize:vertical" style-focus="border-color:#e41f37;outline:none"></textarea></div>
+<div><button type="submit" style="all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 22px;font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:15px;white-space:nowrap;transition:transform 160ms cubic-bezier(.23,1,.32,1),background-color 150ms ease,color 150ms ease;background:#e41f37;color:#fff" style-hover="background:#b3122a" style-active="transform:scale(.97)">Envoyer <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></button></div>
+</form>
+</sc-if>
+</div>
+</section>
+</sc-if>
+
+</main>
+
+<footer style="background:#121214;color:#fff">
+<div style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;padding-top:72px;padding-bottom:32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px"><img src="assets/logo-white.png" alt="Monaco United" style="width:84px;height:auto"><div style="font-size:14px;color:rgba(255,255,255,.6)">Football féminin<br>Principauté de Monaco</div></div>
+<div style="display:flex;flex-direction:column;gap:10px"><div style="font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:13px;color:#e41f37">Club</div><sc-for list="{{ navA }}" as="item" hint-placeholder-count="4"><a href="#" onClick="{{ item.go }}" style="color:#fff;text-decoration:none;font-size:15px">{{ item.label }}</a></sc-for></div>
+<div style="display:flex;flex-direction:column;gap:10px"><div style="font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:13px;color:#e41f37">Saison</div><sc-for list="{{ navB }}" as="item" hint-placeholder-count="4"><a href="#" onClick="{{ item.go }}" style="color:#fff;text-decoration:none;font-size:15px">{{ item.label }}</a></sc-for></div>
+<div style="display:flex;flex-direction:column;gap:10px"><div style="font-family:Archivo,sans-serif;font-stretch:85%;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:13px;color:#e41f37">Suivre le club</div><a href="#" style="color:#fff;text-decoration:none;font-size:15px">Instagram</a><a href="#" style="color:#fff;text-decoration:none;font-size:15px">Facebook</a><a href="#" style="color:#fff;text-decoration:none;font-size:15px">TikTok</a></div>
+</div>
+<div style="max-width:1320px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%;padding-top:20px;padding-bottom:32px;border-top:1px solid rgba(255,255,255,.12);font-size:13px;color:rgba(255,255,255,.5);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap"><span>© 2026 Monaco United</span><span>Mentions légales, confidentialité</span></div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;hero&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Bannière&quot;,&quot;Écusson&quot;,&quot;Carrousel&quot;],&quot;default&quot;:&quot;Bannière&quot;,&quot;tsType&quot;:&quot;'Bannière'|'Écusson'|'Carrousel'&quot;,&quot;section&quot;:&quot;Accueil&quot;},&quot;motion&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Riche&quot;,&quot;Sobre&quot;],&quot;default&quot;:&quot;Riche&quot;,&quot;tsType&quot;:&quot;'Riche'|'Sobre'&quot;,&quot;section&quot;:&quot;Animations&quot;}}">
+const MU = 'Monaco United';
+const FIX = [
+  { j: 1, d: '2026-09-06', home: MU, away: 'AS Cannes 2', sh: 9, sa: 1 },
+  { cup: 1, d: '2026-09-13', home: MU, away: 'SC Aubagne Air Bel', sh: 11, sa: 0 },
+  { j: 2, d: '2026-09-20', home: MU, away: 'AS Monaco FF', sh: 3, sa: 1 },
+  { j: 3, d: '2026-09-27', home: 'St Didier Pernoise', away: MU },
+  { cup: 1, d: '2026-10-04', home: 'AS Cagnes le Cros', away: MU },
+  { j: 4, d: '2026-10-11', home: MU, away: 'Av. C. Avignonnais' },
+  { j: 5, d: '2026-11-01', home: 'Sporting Club Toulon', away: MU },
+  { j: 6, d: '2026-11-08', home: MU, away: 'SC Aix Féminin' },
+  { j: 7, d: '2026-11-15', home: 'Hyères FC', away: MU },
+  { j: 8, d: '2026-11-22', home: MU, away: 'FC Féminin Monteux' },
+  { j: 9, d: '2026-12-06', home: 'FC de Carros', away: MU },
+  { j: 10, d: '2026-12-13', home: MU, away: 'St Marseillais UC' },
+  { j: 11, d: '2027-01-10', home: 'AS Cagnes le Cros', away: MU },
+  { j: 12, d: '2027-01-17', home: 'AS Monaco FF', away: MU },
+  { j: 13, d: '2027-01-24', home: MU, away: 'St Didier Pernoise' },
+  { j: 14, d: '2027-02-07', home: 'Av. C. Avignonnais', away: MU },
+  { j: 15, d: '2027-02-14', home: MU, away: 'Sporting Club Toulon' },
+  { j: 16, d: '2027-02-21', home: 'SC Aix Féminin', away: MU },
+  { j: 17, d: '2027-03-14', home: MU, away: 'Hyères FC' },
+  { j: 18, d: '2027-03-21', home: 'FC Féminin Monteux', away: MU },
+  { j: 19, d: '2027-04-04', home: MU, away: 'FC de Carros' },
+  { j: 20, d: '2027-04-11', home: 'St Marseillais UC', away: MU },
+  { j: 21, d: '2027-05-02', home: MU, away: 'AS Cagnes le Cros' },
+  { j: 22, d: '2027-05-09', home: 'AS Cannes 2', away: MU }
+].map(f => {
+  const dt = new Date(f.d + 'T15:00:00+02:00'), M = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'][dt.getMonth()];
+  const DW = ['Dim.','Lun.','Mar.','Mer.','Jeu.','Ven.','Sam.'][dt.getDay()];
+  const opp = f.home === MU ? f.away : f.home;
+  return { ...f, heure: '15:00', ts: dt.getTime(), date: dt.getDate() + ' ' + M, jl: f.cup ? 'Coupe de France' : 'J' + f.j, opp,
+    dateLong: (f.cup ? 'Coupe de France, ' : 'R1, ') + DW.toLowerCase() + ' ' + dt.getDate() + ' ' + M + (f.home === MU ? ', à domicile' : ', à l\'extérieur') };
+});
+const TABLE = [
+  [MU,2,2,0,0,'+10',6,'VV'],['AS Cagnes le Cros',2,2,0,0,'+7',6,'VV'],['Hyères FC',2,1,1,0,'+3',4,'VN'],['SC Aix Féminin',2,1,1,0,'+2',4,'NV'],
+  ['Av. C. Avignonnais',2,1,0,1,'+1',3,'DV'],['St Didier Pernoise',2,1,0,1,'0',3,'VD'],['FC Féminin Monteux',2,1,0,1,'-1',3,'VD'],['AS Monaco FF',2,1,0,1,'-1',3,'VD'],
+  ['St Marseillais UC',2,0,1,1,'-2',1,'ND'],['FC de Carros',2,0,1,1,'-3',1,'DN'],['Sporting Club Toulon',2,0,0,2,'-6',0,'DD'],['AS Cannes 2',2,0,0,2,'-10',0,'DD']
+];
+const SQUAD = [
+  { num: 1, name: 'Léa Marchetti', pos: 'Gardienne', line: 'G', nat: 'France', img: 'assets/ph08.jpg' },
+  { num: 16, name: 'Camille Rossi', pos: 'Gardienne', line: 'G', nat: 'Italie', img: 'assets/ph17.jpg' },
+  { num: 2, name: 'Inès Bertrand', pos: 'Latérale droite', line: 'D', nat: 'France', img: 'assets/ph02.jpg' },
+  { num: 3, name: 'Jade Moreau', pos: 'Latérale gauche', line: 'D', nat: 'France', img: 'assets/ph01.jpg' },
+  { num: 4, name: 'Chiara Lombardi', pos: 'Défenseure centrale', line: 'D', nat: 'Italie', img: 'assets/ph05.jpg' },
+  { num: 5, name: 'Manon Giraud', pos: 'Défenseure centrale', line: 'D', nat: 'France', img: 'assets/ph04.jpg' },
+  { num: 6, name: 'Élise Fontaine', pos: 'Milieu défensive', line: 'M', nat: 'France', img: 'assets/ph06.jpg' },
+  { num: 8, name: 'Giulia Ferrara', pos: 'Milieu relayeuse', line: 'M', nat: 'Italie', img: 'assets/ph10.jpg' },
+  { num: 10, name: 'Clara Vidal', pos: 'Milieu offensive', line: 'M', nat: 'Monaco', img: 'assets/ph18.jpg' },
+  { num: 14, name: 'Nina Duval', pos: 'Milieu', line: 'M', nat: 'France', img: 'assets/ph12.jpg' },
+  { num: 7, name: 'Lina Benali', pos: 'Ailière', line: 'A', nat: 'France', img: 'assets/ph19.jpg' },
+  { num: 9, name: 'Maëlle Costa', pos: 'Avant-centre', line: 'A', nat: 'Portugal', img: 'assets/ph03.jpg' },
+  { num: 11, name: 'Alice Morel', pos: 'Ailière', line: 'A', nat: 'France', img: 'assets/ph09.jpg' }
+];
+const NEWS = [
+  { cat: 'Match', date: '20 sept.', title: 'Le derby pour Monaco United, 3-1 face à l\'AS Monaco FF', img: 'assets/ph14.jpg', pos: '50% 40%', excerpt: 'Deuxième victoire en deux journées de R1 et la tête du championnat.' },
+  { cat: 'Avant-match', date: '26 sept.', title: 'Coupe de France : direction Cagnes le 4 octobre', img: 'assets/ph13.jpg', pos: '50% 30%', excerpt: 'Prochain tour à l\'AS Cagnes le Cros, coup d\'envoi 15h.' },
+  { cat: 'Coupe', date: '13 sept.', title: '11-0 contre Aubagne pour l\'entrée en Coupe de France', img: 'assets/ph16.jpg', pos: '50% 40%', excerpt: 'Une qualification nette au stade Didier Deschamps.' },
+  { cat: 'Match', date: '6 sept.', title: 'Premier match en R1, large victoire 9-1 contre Cannes', img: 'assets/ph10.jpg', pos: '50% 30%', excerpt: 'Après le titre de District 06, l\'entrée en Régional 1 est réussie.' },
+  { cat: 'Académie', date: '2 sept.', title: 'U15 et U18 : les inscriptions sont ouvertes', img: 'assets/ph07.jpg', pos: '50% 50%', excerpt: 'Journées de détection tous les mercredis de septembre.' }
+];
+const LANG = {
+  FR: { nav: ['Accueil','Équipe','Calendrier','Classement','Actualités','Académie','Partenaires','Contact'], cta: 'Devenir partenaire' },
+  EN: { nav: ['Home','Squad','Fixtures','Standings','News','Academy','Partners','Contact'], cta: 'Become a partner' },
+  IT: { nav: ['Home','Squadra','Calendario','Classifica','Notizie','Accademia','Partner','Contatti'], cta: 'Diventa partner' }
+};
+const PAGES = ['accueil','equipe','calendrier','classement','actus','academie','partenaires','contact'];
+const HEADS = {
+  equipe: { kicker: 'Saison 2026-27', title: 'L\'équipe', intro: 'Treize joueuses, un staff, une ambition : faire briller la Principauté au plus haut niveau.' },
+  calendrier: { kicker: 'R1 féminine', title: 'Calendrier', intro: 'Régional 1 et Coupe de France. Horaires susceptibles d\'évoluer.' },
+  classement: { kicker: 'R1 féminine', title: 'Classement', intro: 'Régional 1 féminin, Ligue Méditerranée. 12 clubs, 22 journées.' },
+  actus: { kicker: 'Vie du club', title: 'Actualités', intro: 'Matchs, coulisses, académie : tout ce qui se passe à Monaco United.' },
+  academie: { kicker: 'Formation', title: 'Académie', intro: 'Cinq catégories, de U9 à U18, pour former les joueuses de demain.' },
+  partenaires: { kicker: 'Ils nous soutiennent', title: 'Partenaires', intro: 'Les entreprises qui accompagnent le club . Et la place qui vous attend.' },
+  contact: { kicker: 'Nous écrire', title: 'Contact', intro: 'Presse, partenariats, supporters ou académie : une seule adresse.' }
+};
+const pad = n => String(n).padStart(2, '0');
+const mapRes = m => {
+  const muHome = m.home === MU, mu = muHome ? m.sh : m.sa, op = muHome ? m.sa : m.sh;
+  const r = mu > op ? 'V' : mu === op ? 'N' : 'D';
+  return { ...m, res: r, resLabel: r === 'V' ? 'Victoire' : r === 'N' ? 'Nul' : 'Défaite', resTag: r === 'V' ? 'tag-accent' : 'tag-neutral' };
+};
+
+class Component extends DCLogic {
+  state = { page: 'accueil', lang: 'FR', variant: null, line: 'all', venue: 'all', subject: 'Supporters', sent: false, squadView: 'players', now: Date.now(), slide: 0, menu: null, nl: false };
+  mainRef = React.createRef();
+  componentDidMount() { this.timer = setInterval(() => this.setState({ now: Date.now() }), 1000); this.startSlides(); this._lastKey = this.state.page + '|' + this.state.variant; this.refreshMotion(); }
+  startSlides() { clearInterval(this.slideTimer); this.slideTimer = setInterval(() => this.setState(s => ({ slide: (s.slide + 1) % 3 })), 6000); }
+  goSlide(i) { this.setState({ slide: (i + 3) % 3 }); this.startSlides(); }
+  reduce() { return (this.props.motion ?? 'Riche') === 'Sobre' || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
+  refreshMotion() { this.setupReveals(); this.setupScroll(); }
+  setupReveals() {
+    const root = this.mainRef.current; if (!root || !root.animate) return;
+    const reduce = this.reduce();
+    this._seen = this._seen || new WeakSet();
+    if (!this._io) this._io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { (e.target.__revs || []).forEach(a => a.play()); this._io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
+    const kfFor = t => reduce ? [{ opacity: 0 }, { opacity: 1 }]
+      : t === 'clip' ? [{ clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0 0 0 0)' }]
+      : t === 'down' ? [{ transform: 'translateY(-100%)' }, { transform: 'none' }]
+      : t === 'left' ? [{ opacity: 0, transform: 'translateX(-48px)' }, { opacity: 1, transform: 'none' }]
+      : [{ opacity: 0, transform: 'translateY(48px)' }, { opacity: 1, transform: 'none' }];
+    const mk = (el, t, d) => { const an = el.animate(kfFor(t), { duration: t === 'clip' ? 1000 : 750, delay: d, easing: t === 'clip' ? 'cubic-bezier(.77,0,.175,1)' : 'cubic-bezier(.23,1,.32,1)', fill: 'both' }); an.pause(); return an; };
+    root.querySelectorAll('[data-reveal],[data-stagger]').forEach(el => {
+      if (this._seen.has(el)) return; this._seen.add(el);
+      if (el.hasAttribute('data-stagger')) el.__revs = [...el.children].map((c, i) => mk(c, 'up', Math.min(i, 8) * 70));
+      else el.__revs = [mk(el, el.getAttribute('data-reveal'), +(el.getAttribute('data-delay') || 0))];
+      this._io.observe(el);
+    });
+    const kick = () => root.querySelectorAll('[data-reveal],[data-stagger]').forEach(el => {
+      const revs = el.__revs; if (!revs || revs[0].playState !== 'paused') return;
+      const r = el.getBoundingClientRect();
+      if (r.top < innerHeight * 0.92 && r.bottom > 0) { revs.forEach(a => a.play()); this._io.unobserve(el); }
+    });
+    kick(); requestAnimationFrame(kick); setTimeout(kick, 150); setTimeout(kick, 600);
+  }
+  setupScroll() {
+    const root = this.mainRef.current; if (!root || this.reduce() || typeof ViewTimeline === 'undefined') return;
+    this._pseen = this._pseen || new WeakSet();
+    root.querySelectorAll('[data-parallax]').forEach(el => {
+      if (this._pseen.has(el)) return; this._pseen.add(el);
+      const [f, t] = el.getAttribute('data-parallax').split(','); const ax = el.getAttribute('data-axis') === 'y' ? 'Y' : 'X';
+      try { el.animate({ transform: ['translate' + ax + '(' + f + ')', 'translate' + ax + '(' + t + ')'] }, { timeline: new ViewTimeline({ subject: el.parentElement }), fill: 'both', easing: 'linear' }); } catch (e) {}
+    });
+  }
+  animateSquad() {
+    const root = this.mainRef.current; if (!root) return;
+    const g = root.querySelector('[data-squad-grid]'); if (!g || !g.animate) return;
+    const reduce = this.reduce();
+    [...g.children].forEach((c, i) => {
+      c.getAnimations().forEach(a => a.cancel());
+      c.animate(reduce ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(28px) scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 480, delay: Math.min(i, 10) * 45, easing: 'cubic-bezier(.23,1,.32,1)', fill: 'backwards' });
+      const img = c.querySelector('img');
+      if (img && !reduce) img.animate([{ transform: 'scale(1.12)' }, { transform: 'scale(1)' }], { duration: 700, delay: Math.min(i, 10) * 45, easing: 'cubic-bezier(.23,1,.32,1)', fill: 'backwards' });
+    });
+  }
+  animateSlide() {
+    const root = this.mainRef.current; if (!root) return;
+    const art = root.querySelector('[data-slide="' + this.state.slide + '"]'); if (!art || !art.animate) return;
+    const reduce = this.reduce();
+    const img = art.querySelector('[data-slide-img]'), txt = art.querySelector('[data-slide-text]');
+    if (img && !reduce) img.animate([{ transform: 'scale(1.08)' }, { transform: 'scale(1)' }], { duration: 1400, easing: 'cubic-bezier(.23,1,.32,1)' });
+    if (txt) [...txt.children].forEach((c, i) => c.animate(reduce ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(32px)' }, { opacity: 1, transform: 'none' }], { duration: 650, delay: 120 + i * 70, easing: 'cubic-bezier(.23,1,.32,1)', fill: 'backwards' }));
+  }
+  enter() {
+    const el = this.mainRef.current;
+    if (!el || !el.animate) return;
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    [...el.querySelectorAll(':scope > section')].slice(0, 4).forEach((s, i) => s.animate(
+      reduce ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }],
+      { duration: 280, delay: i * 60, easing: 'cubic-bezier(.23,1,.32,1)', fill: 'backwards' }));
+  }
+  componentWillUnmount() { clearInterval(this.timer); clearInterval(this.slideTimer); }
+  componentDidUpdate() {
+    const sk = this.state.line + '|' + this.state.squadView;
+    if (this._lastSquad !== undefined && sk !== this._lastSquad) this.animateSquad();
+    this._lastSquad = sk;
+    if (this.state.slide !== this._lastSlide) { const first = this._lastSlide === undefined; this._lastSlide = this.state.slide; if (!first) this.animateSlide(); }
+    const key = this.state.page + '|' + this.state.variant;
+    if (key !== this._lastKey) {
+      this._lastKey = key;
+      window.scrollTo(0, 0);
+      this.refreshMotion();
+    }
+  }
+  nav = (page, extra) => e => { if (e && e.preventDefault) e.preventDefault(); this.setState({ page, ...(extra || {}) }); };
+
+  renderVals() {
+    const s = this.state;
+    const variant = s.variant || (this.props.accueil ?? 'D');
+    const duo = (this.props.duotone ?? false) ? 'duotone' : '';
+    const L = LANG[s.lang];
+    const nav = PAGES.map((p, i) => ({ label: L.nav[i], go: this.nav(p), current: s.page === p ? 'page' : undefined }));
+    const go = Object.fromEntries(PAGES.map(p => [p, this.nav(p)]));
+    go.partenariat = this.nav('contact', { subject: 'Partenariat', sent: false });
+    go.essai = this.nav('contact', { subject: 'Académie', sent: false });
+
+    const next = FIX.find(f => f.sh == null && f.ts + 2 * 36e5 > s.now) || FIX[FIX.length - 1];
+    const diff = Math.max(0, next.ts - s.now);
+    const d = Math.floor(diff / 864e5), h = Math.floor(diff / 36e5) % 24, m = Math.floor(diff / 6e4) % 60, sec = Math.floor(diff / 1e3) % 60;
+    const cdList = [[d, 'J', 'Jours'], [h, 'H', 'Heures'], [m, 'MIN', 'Minutes'], [sec, 'S', 'Secondes']].map(([v, l, lLong]) => ({ v: pad(v), l, lLong }));
+
+    const played = FIX.filter(f => f.sh != null).map(mapRes);
+    const lastResults = played.slice().reverse();
+
+    const muBg = 'var(--color-accent-100)';
+    const table = TABLE.map(([team, j, g, n, p, df, pts, form], i) => {
+      const mu = team === MU;
+      return { pos: i + 1, team, j, g, n, p, diff: df, pts, bg: mu ? muBg : 'transparent', fw: mu ? 700 : 400, fg: mu ? 'var(--color-accent-700)' : 'var(--color-text)',
+        edge: i === 0 ? 'var(--color-accent)' : i >= 10 ? 'var(--color-neutral-500)' : 'transparent',
+        form: form.split('').map(l => ({ l, bg: l === 'V' ? 'var(--color-accent)' : l === 'N' ? 'var(--color-neutral-300)' : 'var(--color-neutral-700)', fg: l === 'N' ? 'var(--color-text)' : '#fff' })) };
+    });
+
+    const tabStyle = on => ({ bg: on ? 'var(--color-accent)' : 'transparent', fg: on ? '#fff' : 'var(--color-text)' });
+    const lineTabs = [['all','Toutes'],['G','Gardiennes'],['D','Défenseures'],['M','Milieux'],['A','Attaquantes']].map(([k, label]) => ({ label, go: () => this.setState({ line: k }), ...tabStyle(s.line === k), fg: s.line === k ? '#fff' : '#121214' }));
+    const venueTabs = [['all','Tous'],['home','Domicile'],['away','Extérieur']].map(([k, label]) => ({ label, go: () => this.setState({ venue: k }), ...tabStyle(s.venue === k) }));
+    const fixturesShown = FIX.filter(f => s.venue === 'all' || (s.venue === 'home') === (f.home === MU)).map(f => {
+      const isHome = f.home === MU;
+      if (f.sh != null) { const r = mapRes(f); return { ...f, center: `${f.sh}-${f.sa}`, tagCls: r.resTag, tagLabel: r.resLabel, rowBg: 'transparent' }; }
+      const isNext = f === next, pending = !isNext && f.ts < s.now;
+      return { ...f, center: pending ? '-' : f.heure, tagCls: isNext ? 'tag-outline' : 'tag-neutral', tagLabel: isNext ? 'Prochain' : pending ? 'Score à venir' : isHome ? 'Domicile' : 'Extérieur', rowBg: isNext ? muBg : 'transparent' };
+    });
+
+    const subjects = ['Supporters','Partenariat','Presse','Académie'].map(label => ({ label, go: () => this.setState({ subject: label }), ...tabStyle(s.subject === label) }));
+    const isHome = s.page === 'accueil';
+
+    const chip = x => { const acc = x.tagCls === 'tag-accent' || x.resTag === 'tag-accent', out = x.tagCls === 'tag-outline'; return { ...x, cBg: acc ? '#e41f37' : out ? '#fff' : '#e7e7e6', cFg: acc ? '#fff' : out ? '#e41f37' : '#121214', cBd: acc || out ? '#e41f37' : 'transparent' }; };
+    return {
+      t: L, nav, navTop: nav.slice(1), langCode: s.lang, cycleLang: () => { const k = Object.keys(LANG); this.setState({ lang: k[(k.indexOf(s.lang) + 1) % k.length] }); }, navA: nav.slice(0, 1).concat(nav.slice(5)), navB: nav.slice(1, 5), go, mainRef: this.mainRef, duo,
+      langs: Object.keys(LANG).map(code => ({ code, go: () => this.setState({ lang: code }), ...tabStyle(s.lang === code) })),
+      isHome, isHomeD: isHome && variant === 'D', isHomeA: isHome && variant === 'A', isHomeB: isHome && variant === 'B', isHomeC: isHome && variant === 'C',
+      isInner: !isHome, head: HEADS[s.page] || {},
+      isEquipe: s.page === 'equipe', isCalendrier: s.page === 'calendrier', isClassement: s.page === 'classement', isActus: s.page === 'actus',
+      isAcademie: s.page === 'academie', isPartenaires: s.page === 'partenaires', isContact: s.page === 'contact',
+      next, cdList, lastResults: lastResults.map(chip), last: lastResults[0],
+      table, tableTop: table.slice(0, 5),
+      newsTop: NEWS.slice(0, 3), lead: NEWS[0], newsRest: NEWS.slice(1),
+      squadTop: SQUAD.filter(p => p.line !== 'G').slice(0, 6), squadShown: SQUAD.filter(p => s.line === 'all' || p.line === s.line), lineTabs,
+      venueTabs, fixturesShown: fixturesShown.map(chip),
+      values: [
+        { n: '01', t: 'Ambition', d: 'Viser le plus haut niveau, match après match.' },
+        { n: '02', t: 'Collectif', d: 'Une équipe, un vestiaire, une seule couleur.' },
+        { n: '03', t: 'Principauté', d: 'Porter le rouge et blanc de Monaco partout.' }
+      ],
+      categories: [
+        { code: 'U9', years: '2018-2019', focus: 'Découverte et plaisir du jeu', slots: 'Mercredi 14h · Samedi 10h' },
+        { code: 'U11', years: '2016-2017', focus: 'Technique individuelle', slots: 'Mercredi 14h · Vendredi 17h30' },
+        { code: 'U13', years: '2014-2015', focus: 'Jeu collectif', slots: 'Mardi · Jeudi 17h30' },
+        { code: 'U15', years: '2012-2013', focus: 'Préformation', slots: 'Lundi · Mercredi · Vendredi 18h' },
+        { code: 'U18', years: '2009-2011', focus: 'Passerelle vers l\'équipe première', slots: '4 séances / semaine' }
+      ],
+      offers: [
+        { n: '01', t: 'Maillot', d: 'Votre logo porté à chaque match, sur le terrain et dans les médias.' },
+        { n: '02', t: 'Stade', d: 'Panneaux, hospitalités et activations les jours de match.' },
+        { n: '03', t: 'Digital', d: 'Présence sur nos réseaux, contenus co-produits et newsletter.' },
+        { n: '04', t: 'Académie', d: 'Soutenez la formation des jeunes joueuses de la Principauté.' }
+      ],
+      partnersStrip: [
+        { name: 'Groupe Marzocco', role: 'Partenaire principal', fg: 'var(--color-accent)' },
+        { name: 'Erreà', role: 'Équipementier', fg: 'var(--color-text)' },
+        { name: 'Votre marque', role: 'Partenaire officiel', fg: 'var(--color-neutral-500)' },
+        { name: 'Votre marque', role: 'Partenaire académie', fg: 'var(--color-neutral-500)' }
+      ],
+      infos: [
+        { k: 'Stade', v: 'Stade Didier Deschamps' }, { k: 'Ville', v: 'Cap-d\'Ail (06), France' },
+        { k: 'E-mail', v: 'contact@monacounited.mc' }, { k: 'Presse', v: 'presse@monacounited.mc' }
+      ],
+      subjects, isPartnerSubject: s.subject === 'Partenariat',
+      sent: s.sent, notSent: !s.sent,
+      submit: e => { e.preventDefault(); this.setState({ sent: true }); },
+      resetForm: () => this.setState({ sent: false }),
+      showSwitch: isHome,
+      viewX: s.squadView === 'staff' ? '100%' : '0%', isPlayersView: s.squadView !== 'staff', isStaffView: s.squadView === 'staff',
+      viewTabs: [['players', 'Joueuses'], ['staff', 'Staff']].map(([k, label]) => ({ label, sel: String(s.squadView === k), fg: s.squadView === k ? '#fff' : '#121214', go: () => this.setState({ squadView: k }) })),
+      lineX: (['all', 'G', 'D', 'M', 'A'].indexOf(s.line) * 100) + '%',
+      staff: [
+        { name: 'Marco Simone', role: 'Président et entraîneur principal', img: 'assets/ph11.jpg' },
+        { name: 'Entraîneur adjoint', role: 'À compléter' },
+        { name: 'Entraîneur des gardiennes', role: 'À compléter' },
+        { name: 'Préparation physique', role: 'À compléter' }
+      ].map(x => ({ ...x, img: x.img || 'assets/logo-white.png', imgOp: x.img ? 1 : 0, phOp: x.img ? 0 : 1 })),
+      stripPrev: e => { const s = e.currentTarget.closest('section').querySelector('[data-strip]'); if (s) s.scrollBy({ left: -s.clientWidth * 0.8 }); },
+      stripNext: e => { const s = e.currentTarget.closest('section').querySelector('[data-strip]'); if (s) s.scrollBy({ left: s.clientWidth * 0.8 }); },
+      heroBanner: (this.props.hero ?? 'Bannière') === 'Bannière', heroCrest: (this.props.hero ?? 'Bannière') === 'Écusson', heroCarousel: (this.props.hero ?? 'Bannière') === 'Carrousel',
+      matchBg: (this.props.hero ?? 'Bannière') === 'Carrousel' ? '#e41f37' : '#121214',
+      menus: [
+        { key: 'actus', label: L.nav[4], page: 'actus' },
+        { key: 'saison', label: { FR: 'Saison', EN: 'Season', IT: 'Stagione' }[s.lang], pages: ['equipe', 'calendrier', 'classement', 'academie'], idx: [1, 2, 3, 5] },
+        { key: 'club', label: 'Club', pages: ['partenaires', 'contact'], idx: [6, 7] }
+      ].map(g => {
+        const open = s.menu === g.key, has = !!g.pages;
+        const active = g.page ? s.page === g.page : g.pages.includes(s.page);
+        return { label: g.label, hasItems: has, expanded: has ? String(open) : undefined,
+          fg: active || open ? 'var(--color-accent)' : 'var(--color-text)',
+          open: () => has && this.setState({ menu: g.key }),
+          click: e => { if (e) e.preventDefault(); if (!has) this.setState({ page: g.page, menu: null }); else this.setState({ menu: open ? null : g.key }); },
+          op: open ? 1 : 0, tf: open ? 'none' : 'translateY(-4px) scale(.97)', pe: open ? 'auto' : 'none', dur: open ? '180ms' : '120ms',
+          items: has ? g.pages.map((p, i) => ({ label: L.nav[g.idx[i]], fg: s.page === p ? 'var(--color-accent)' : 'var(--color-text)', go: e => { if (e) e.preventDefault(); this.setState({ page: p, menu: null }); } })) : [] };
+      }),
+      closeMenu: () => this.setState({ menu: null }),
+      slides: NEWS.slice(0, 3).map((n, i) => ({ ...n, op: s.slide === i ? 1 : 0, pe: s.slide === i ? 'auto' : 'none' })),
+      bars: [0, 1, 2].map(i => ({ label: 'Article ' + (i + 1), go: () => this.goSlide(i), sx: s.slide === i ? 1 : 0, dur: s.slide === i ? '6000ms' : '0ms' })),
+      prevSlide: () => this.goSlide(s.slide - 1), nextSlide: () => this.goSlide(s.slide + 1),
+      newsList: NEWS.slice(1, 5),
+      videos: [
+        { title: 'Résumé : Monaco United vs AS Monaco FF (3-1)', img: 'assets/ph14.jpg' },
+        { title: 'Résumé : Monaco United vs SC Aubagne (11-0)', img: 'assets/ph16.jpg' },
+        { title: 'Résumé : Monaco United vs AS Cannes 2 (9-1)', img: 'assets/ph10.jpg' },
+        { title: 'Les buts du mois de septembre', img: 'assets/ph13.jpg' },
+        { title: 'Marco Simone présente la saison', img: 'assets/ph11.jpg' }
+      ],
+      top3: table.slice(0, 3).map(r => ({ ...r, bgSolid: r.team === MU ? 'var(--color-accent-100)' : '#fff', posFg: r.team === MU ? 'var(--color-accent)' : 'var(--color-text)' })),
+      gallery: [
+        { img: 'assets/ph13.jpg', c: 2, r: 2 }, { img: 'assets/ph01.jpg', c: 1, r: 1 }, { img: 'assets/ph04.jpg', c: 1, r: 2 },
+        { img: 'assets/ph15.jpg', c: 1, r: 1 }, { img: 'assets/ph07.jpg', c: 2, r: 1 }, { img: 'assets/ph05.jpg', c: 2, r: 1 }
+      ],
+      nlDone: s.nl, nlTodo: !s.nl, nlSubmit: e => { e.preventDefault(); this.setState({ nl: true }); },
+      variants: ['D','A','B','C'].map(k => ({ k, go: () => this.setState({ variant: k }), bg: variant === k ? 'var(--color-accent)' : 'transparent' }))
+    };
+  }
+}
+</script>
+</body>
+</html>
