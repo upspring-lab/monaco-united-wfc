@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { articleHref, href, type Locale } from '@/i18n/config';
+import { getDictionary } from '@/i18n/dictionaries';
 import type { Img, NewsVM, PartnerVM, PlayerVM, StandingVM, VideoVM } from '@/lib/types';
 import CmsImage from '@/components/ui/CmsImage';
 import { ArrowRight, Play } from '@/components/ui/icons';
@@ -8,16 +9,17 @@ import StripNav from '@/components/ui/StripNav';
 import styles from './Home.module.css';
 
 export function HomeNews({ locale, news }: { locale: Locale; news: NewsVM[] }) {
+  const t = getDictionary(locale);
   const [lead, ...rest] = news;
   if (!lead) return null;
   return (
     <section className={`container ${styles.news}`}>
       <div className="section-head" style={{ marginBottom: 36 }}>
         <h2 data-reveal="up" className="display h2">
-          Actualités
+          {t.home.news}
         </h2>
         <Link href={href(locale, 'actus')} className="btn btn--ink">
-          Tout voir <ArrowRight />
+          {t.common.seeAll} <ArrowRight />
         </Link>
       </div>
       <div className={styles.newsGrid}>
@@ -67,6 +69,7 @@ export function TypeBand({ line1, line2 }: { line1: string; line2: string }) {
 }
 
 export function PlayersStrip({ locale, players }: { locale: Locale; players: PlayerVM[] }) {
+  const t = getDictionary(locale);
   const shown = players.filter(p => p.line !== 'G').slice(0, 6);
   if (!shown.length) return null;
   return (
@@ -74,12 +77,12 @@ export function PlayersStrip({ locale, players }: { locale: Locale; players: Pla
       <div className={`container ${styles.darkInner}`}>
         <div className="section-head" style={{ marginBottom: 40 }}>
           <h2 data-reveal="up" className="display h2">
-            Les joueuses
+            {t.home.players}
           </h2>
           <div className={styles.headActions}>
-            <StripNav />
+            <StripNav prev={t.a11y.prev} next={t.a11y.next} />
             <Link href={href(locale, 'equipe')} className="btn btn--white">
-              Effectif <ArrowRight />
+              {t.common.squad} <ArrowRight />
             </Link>
           </div>
         </div>
@@ -94,15 +97,16 @@ export function PlayersStrip({ locale, players }: { locale: Locale; players: Pla
 }
 
 export function StandingsAcademy({ locale, rows, academy }: { locale: Locale; rows: StandingVM[]; academy: { text: string; img?: Img } }) {
+  const t = getDictionary(locale);
   return (
     <section className={`container ${styles.duo}`}>
       <div>
         <div className="section-head" style={{ marginBottom: 28 }}>
           <h2 data-reveal="up" className="display h2">
-            Classement
+            {t.home.standings}
           </h2>
           <Link href={href(locale, 'classement')} className="btn btn--ink">
-            Complet <ArrowRight />
+            {t.common.full} <ArrowRight />
           </Link>
         </div>
         <div data-stagger="1" className={styles.top3}>
@@ -114,12 +118,12 @@ export function StandingsAcademy({ locale, rows, academy }: { locale: Locale; ro
               <div>
                 <div className={`display ${styles.top3Team}`}>{r.team}</div>
                 <div className={styles.meta} style={{ marginTop: 2 }}>
-                  {r.g} V, {r.n} N, {r.p} D
+                  {t.record(r.g, r.n, r.p)}
                 </div>
               </div>
               <span className={`display ${styles.top3Pts}`}>
                 {r.pts}
-                <span> pts</span>
+                <span> {t.common.pts}</span>
               </span>
             </div>
           ))}
@@ -132,10 +136,10 @@ export function StandingsAcademy({ locale, rows, academy }: { locale: Locale; ro
           </div>
         )}
         <div className={styles.academyBody}>
-          <h2 className="display h2">L&apos;académie</h2>
+          <h2 className="display h2">{t.home.academy}</h2>
           {academy.text && <p>{academy.text}</p>}
           <Link href={href(locale, 'academie')} className="btn btn--white">
-            Découvrir <ArrowRight />
+            {t.common.discover} <ArrowRight />
           </Link>
         </div>
       </div>
@@ -143,18 +147,19 @@ export function StandingsAcademy({ locale, rows, academy }: { locale: Locale; ro
   );
 }
 
-export function Videos({ videos, note }: { videos: VideoVM[]; note: string }) {
+export function Videos({ locale, videos, note }: { locale: Locale; videos: VideoVM[]; note: string }) {
   if (!videos.length) return null;
+  const t = getDictionary(locale);
   return (
     <section className={styles.dark} style={{ marginTop: 104 }}>
       <div className={`container ${styles.darkInner}`} style={{ paddingBottom: 80 }}>
         <div className="section-head" style={{ marginBottom: 36 }}>
           <h2 data-reveal="up" className="display h2">
-            Vidéos
+            {t.home.videos}
           </h2>
           <div className={styles.headActions}>
             {note && <span className={styles.soon}>{note}</span>}
-            <StripNav />
+            <StripNav prev={t.a11y.prev} next={t.a11y.next} />
           </div>
         </div>
         <div data-strip="1" data-stagger="1" className={styles.videoStrip}>
@@ -186,12 +191,13 @@ export function Videos({ videos, note }: { videos: VideoVM[]; note: string }) {
   );
 }
 
-export function Gallery({ items }: { items: { img: Img; c: number; r: number }[] }) {
+export function Gallery({ locale, items }: { locale: Locale; items: { img: Img; c: number; r: number }[] }) {
   if (!items.length) return null;
+  const t = getDictionary(locale);
   return (
     <section className={`container ${styles.gallerySection}`}>
       <h2 data-reveal="up" className="display h2" style={{ marginBottom: 36 }}>
-        Galerie
+        {t.home.gallery}
       </h2>
       <div className={styles.gallery}>
         {items.map((g, i) => (
@@ -204,13 +210,14 @@ export function Gallery({ items }: { items: { img: Img; c: number; r: number }[]
   );
 }
 
-export function PartnersStrip({ partners }: { partners: PartnerVM[] }) {
+export function PartnersStrip({ locale, partners }: { locale: Locale; partners: PartnerVM[] }) {
+  const t = getDictionary(locale);
   const shown = partners.filter(p => p.showOnHome);
   if (!shown.length) return null;
   const color = (p: PartnerVM) => (p.placeholder ? 'var(--grey-500)' : p.tier === 'main' ? 'var(--accent)' : 'var(--ink)');
   return (
     <section className={`container ${styles.partners}`}>
-      <div className={`label ${styles.partnersTitle}`}>Nos partenaires</div>
+      <div className={`label ${styles.partnersTitle}`}>{t.home.partners}</div>
       <div data-stagger="1" className={styles.partnersGrid}>
         {shown.map(p => {
           const inner = p.logo ? <CmsImage img={p.logo} alt={p.name} className={styles.partnerLogo} sizes="200px" /> : p.name;

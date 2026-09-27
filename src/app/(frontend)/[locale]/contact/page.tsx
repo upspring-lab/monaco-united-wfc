@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import ContactForm from '@/components/contact/ContactForm';
 import PageHead from '@/components/ui/PageHead';
 import type { Locale } from '@/i18n/config';
+import { getDictionary } from '@/i18n/dictionaries';
 import { getPageHead, getSettings } from '@/lib/cms';
 import styles from '@/components/contact/Contact.module.css';
 
@@ -16,11 +17,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ContactPage({ params }: Props) {
   const locale = (await params).locale as Locale;
   const [head, s] = await Promise.all([getPageHead(locale, 'contact'), getSettings(locale)]);
+  const t = getDictionary(locale).contact.infos;
   const infos = [
-    { k: 'Stade', v: s.stadium },
-    { k: 'Ville', v: s.city },
-    { k: 'E-mail', v: s.email, mail: true },
-    { k: 'Presse', v: s.pressEmail, mail: true },
+    { k: t.stadium, v: s.stadium },
+    { k: t.city, v: s.city },
+    { k: t.email, v: s.email, mail: true },
+    { k: t.press, v: s.pressEmail, mail: true },
   ].filter(i => i.v);
   return (
     <>

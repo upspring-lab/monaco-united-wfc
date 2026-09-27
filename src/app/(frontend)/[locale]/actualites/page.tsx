@@ -4,6 +4,7 @@ import PageHead from '@/components/ui/PageHead';
 import CmsImage from '@/components/ui/CmsImage';
 import { ArrowRight } from '@/components/ui/icons';
 import { articleHref, type Locale } from '@/i18n/config';
+import { getDictionary } from '@/i18n/dictionaries';
 import { getNews, getPageHead } from '@/lib/cms';
 import styles from '@/components/pages/Pages.module.css';
 
@@ -17,6 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ActualitesPage({ params }: Props) {
   const locale = (await params).locale as Locale;
   const [head, news] = await Promise.all([getPageHead(locale, 'actus'), getNews(locale, 60)]);
+  const t = getDictionary(locale).common;
   const [lead, ...rest] = news;
   return (
     <>
@@ -33,7 +35,7 @@ export default async function ActualitesPage({ params }: Props) {
                 <h2 className={`display ${styles.featureTitle}`}>{lead.title}</h2>
                 <p className={styles.featureExcerpt}>{lead.excerpt}</p>
                 <Link href={articleHref(locale, lead.slug)} className="btn btn--ink">
-                  Lire l&apos;article <ArrowRight />
+                  {t.readArticle} <ArrowRight />
                 </Link>
               </div>
             </article>
@@ -53,7 +55,7 @@ export default async function ActualitesPage({ params }: Props) {
             </div>
           </>
         ) : (
-          <p className={styles.empty}>Aucune actualité pour le moment.</p>
+          <p className={styles.empty}>{t.noNews}</p>
         )}
       </section>
     </>

@@ -17,7 +17,7 @@ export default async function CalendrierPage({ params }: Props) {
   return (
     <>
       <PageHead title={head.title} intro={head.intro} />
-      <Fixtures matches={matches} renderedAt={Date.now()} />
+      <Fixtures locale={locale} matches={matches} renderedAt={Date.now()} />
     </>
   );
 }

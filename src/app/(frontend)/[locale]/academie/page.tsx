@@ -4,6 +4,7 @@ import CmsImage from '@/components/ui/CmsImage';
 import PageHead from '@/components/ui/PageHead';
 import { ArrowRight } from '@/components/ui/icons';
 import { href, type Locale } from '@/i18n/config';
+import { getDictionary } from '@/i18n/dictionaries';
 import { getCategories, getPages, toImg } from '@/lib/cms';
 import styles from '@/components/pages/Pages.module.css';
 
@@ -18,6 +19,7 @@ export default async function AcademiePage({ params }: Props) {
   const locale = (await params).locale as Locale;
   const [pages, categories] = await Promise.all([getPages(locale), getCategories(locale)]);
   const p = pages.academie;
+  const t = getDictionary(locale).academy;
   const img = toImg(p?.image, 'Entraînement');
   return (
     <>
@@ -32,16 +34,16 @@ export default async function AcademiePage({ params }: Props) {
           {categories.map(c => (
             <div key={c.code} className={styles.category}>
               <div className={`display ${styles.catCode}`}>{c.code}</div>
-              <div className={styles.catYears}>Nées en {c.years}</div>
+              <div className={styles.catYears}>{t.born(c.years)}</div>
               <div className={`display ${styles.catFocus}`}>{c.focus}</div>
               <div className={styles.catSlots}>{c.slots}</div>
             </div>
           ))}
         </div>
         <div data-reveal="up" className={styles.ctaRow}>
-          <h2 className={`display ${styles.ctaTitle}`}>{p?.ctaTitle || "Envie de rejoindre l'académie ?"}</h2>
+          <h2 className={`display ${styles.ctaTitle}`}>{p?.ctaTitle || t.ctaTitle}</h2>
           <Link href={href(locale, 'contact', 'objet=academie')} className="btn btn--primary">
-            Demander un essai <ArrowRight />
+            {t.askTrial} <ArrowRight />
           </Link>
         </div>
       </section>

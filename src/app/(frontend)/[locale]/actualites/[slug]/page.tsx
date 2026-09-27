@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import CmsImage from '@/components/ui/CmsImage';
 import { href, type Locale } from '@/i18n/config';
+import { getDictionary } from '@/i18n/dictionaries';
 import { getArticle } from '@/lib/cms';
 import styles from '@/components/pages/Pages.module.css';
 
@@ -30,7 +31,7 @@ export default async function ArticlePage({ params }: Props) {
       <header className={styles.articleHead}>
         <div className={`container ${styles.articleHeadInner}`}>
           <Link href={href(locale as Locale, 'actus')} className={`label ${styles.back}`}>
-            ← Actualités
+            ← {getDictionary(locale as Locale).common.backToNews}
           </Link>
           <div data-reveal="up" className={styles.articleMeta}>
             <span className={`label ${styles.badge}`}>{a.cat}</span>

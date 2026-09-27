@@ -4,6 +4,7 @@ import { getPayload, type Where } from 'payload';
 import { cache } from 'react';
 import type { Club, Media, News, Page } from '@/payload-types';
 import type { Locale } from '@/i18n/config';
+import { getDictionary, type NewsCategory } from '@/i18n/dictionaries';
 import type {
   CategoryVM,
   Img,
@@ -49,29 +50,19 @@ const PLACEHOLDER_IMG: Img = { src: '/assets/logo-white.png', alt: '', pos: '50%
 
 // ---------- Dates (toujours à l'heure de Monaco, quel que soit le fuseau du serveur) ----------
 
-const MONTHS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
-const DAYS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
-const tzParts = new Intl.DateTimeFormat('en-GB', {
-  timeZone: 'Europe/Monaco',
-  year: 'numeric',
-  month: 'numeric',
-  day: 'numeric',
-  weekday: 'short',
-  hour: '2-digit',
-  minute: '2-digit',
-  hourCycle: 'h23',
-});
-const WEEKDAY_INDEX: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
-
-function monacoDate(iso: string) {
-  const p = Object.fromEntries(tzParts.formatToParts(new Date(iso)).map(x => [x.type, x.value]));
-  return { day: Number(p.day), month: Number(p.month) - 1, dow: WEEKDAY_INDEX[p.weekday], time: `${p.hour}:${p.minute}` };
-}
-
-const shortDate = (iso: string) => {
-  const d = monacoDate(iso);
-  return `${d.day} ${MONTHS[d.month]}`;
+const TZ = 'Europe/Monaco';
+const INTL: Record<Locale, string> = { fr: 'fr-FR', en: 'en-GB', it: 'it-IT' };
+const fmtCache = new Map<string, Intl.DateTimeFormat>();
+const fmt = (locale: Locale, opts: Intl.DateTimeFormatOptions) => {
+  const key = locale + JSON.stringify(opts);
+  if (!fmtCache.has(key)) fmtCache.set(key, new Intl.DateTimeFormat(INTL[locale], { timeZone: TZ, ...opts }));
+  return fmtCache.get(key)!;
 };
+
+/** « 4 oct. » / « 4 Oct » / « 4 ott ». */
+const shortDate = (iso: string, locale: Locale) => fmt(locale, { day: 'numeric', month: 'short' }).format(new Date(iso));
+const weekday = (iso: string, locale: Locale) => fmt(locale, { weekday: 'short' }).format(new Date(iso));
+const time = (iso: string) => fmt('fr', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(iso));
 
 // ---------- Réglages & pages ----------
 
@@ -111,12 +102,12 @@ export const getHome = cache(async (locale: Locale) => {
 
 // ---------- Actualités ----------
 
-function toNews(n: News): NewsVM {
+function toNews(n: News, locale: Locale): NewsVM {
   return {
     id: String(n.id),
     slug: n.slug ?? String(n.id),
-    cat: n.category,
-    date: shortDate(n.publishedAt),
+    cat: getDictionary(locale).newsCats[n.category as NewsCategory] ?? n.category,
+    date: shortDate(n.publishedAt, locale),
     isoDate: n.publishedAt,
     title: n.title,
     excerpt: n.excerpt,
@@ -127,13 +118,13 @@ function toNews(n: News): NewsVM {
 /** Actualités publiées, la « à la une » la plus récente en premier. */
 export const getNews = cache(async (locale: Locale, limit = 20): Promise<NewsVM[]> => {
   const { docs } = await (await payload()).find({ collection: 'news', ...common(locale), sort: ['-featured', '-publishedAt'], limit, pagination: false });
-  return docs.map(toNews);
+  return docs.map(d => toNews(d, locale));
 });
 
 export const getArticle = cache(async (locale: Locale, slug: string) => {
   const { docs } = await (await payload()).find({ collection: 'news', ...common(locale), where: { slug: { equals: slug } }, limit: 1 });
   const doc = docs[0];
-  return doc ? { ...toNews(doc), content: doc.content } : null;
+  return doc ? { ...toNews(doc, locale), content: doc.content } : null;
 });
 
 export const getNewsSlugs = async (): Promise<string[]> => {
@@ -170,16 +161,17 @@ export const getMatches = cache(async (locale: Locale, where?: Where): Promise<M
     const away = obj<Club>(m.away);
     const isHome = !!home?.isUs;
     const opp = isHome ? away : home;
-    const d = monacoDate(m.kickoff);
+    const t = getDictionary(locale).match;
     const played = m.homeScore != null && m.awayScore != null;
-    const comp = m.competition === 'cup' ? 'Coupe de France' : m.competition === 'friendly' ? 'Match amical' : `J${m.round ?? ''}`;
-    const compLong = m.competition === 'cup' ? 'Coupe de France' : m.competition === 'friendly' ? 'Match amical' : 'R1';
+    const comp = m.competition === 'cup' ? t.cup : m.competition === 'friendly' ? t.friendly : t.round(m.round ?? 0);
+    const compLong = m.competition === 'cup' ? t.cup : m.competition === 'friendly' ? t.friendly : t.league;
+    const date = shortDate(m.kickoff, locale);
     return {
       id: String(m.id),
       jl: comp,
-      date: `${d.day} ${MONTHS[d.month]}`,
-      dateLong: `${compLong}, ${DAYS[d.dow]} ${d.day} ${MONTHS[d.month]}, ${isHome ? 'à domicile' : "à l'extérieur"}`,
-      heure: d.time,
+      date,
+      dateLong: `${compLong}, ${weekday(m.kickoff, locale)} ${date}, ${isHome ? t.atHome : t.away}`,
+      heure: time(m.kickoff),
       ts: new Date(m.kickoff).getTime(),
       home: home?.name ?? '?',
       away: away?.name ?? '?',

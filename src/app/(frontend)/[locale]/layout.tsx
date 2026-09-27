@@ -6,6 +6,7 @@ import Footer from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
 import Motion from '@/components/motion/Motion';
 import { isLocale, LOCALES } from '@/i18n/config';
+import { getDictionary } from '@/i18n/dictionaries';
 import { getSettings } from '@/lib/cms';
 import '@/styles/globals.css';
 
@@ -32,9 +33,9 @@ export async function generateMetadata({ params }: Omit<Props, 'children'>): Pro
   const s = await getSettings(locale);
   const title = s.metaTitle || 'Monaco United, football féminin';
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'),
+    metadataBase: new URL(process.env.SERVER_URL || 'http://localhost:3000'),
     title: { default: title, template: '%s · Monaco United' },
-    description: s.metaDescription || 'Monaco United, club de football féminin de la Principauté de Monaco.',
+    description: s.metaDescription || getDictionary(locale).meta.description,
     icons: { icon: '/assets/logo-red.png' },
     alternates: { languages: Object.fromEntries(LOCALES.map(l => [l, `/${l}`])) },
     openGraph: { siteName: 'Monaco United', locale, type: 'website' },

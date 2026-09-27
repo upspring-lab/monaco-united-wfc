@@ -4,18 +4,12 @@ import CmsImage from '@/components/ui/CmsImage';
 import PageHead from '@/components/ui/PageHead';
 import { ArrowRight } from '@/components/ui/icons';
 import { href, type Locale } from '@/i18n/config';
+import { getDictionary } from '@/i18n/dictionaries';
 import { getPages, getPartners } from '@/lib/cms';
 import type { PartnerVM } from '@/lib/types';
 import styles from '@/components/pages/Pages.module.css';
 
 type Props = { params: Promise<{ locale: string }> };
-
-const TIER_LABEL: Record<PartnerVM['tier'], string> = {
-  main: 'Partenaire principal',
-  kit: 'Équipementier',
-  official: 'Partenaire officiel',
-  academy: 'Partenaire académie',
-};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const p = (await getPages((await params).locale as Locale)).partenaires;
@@ -26,13 +20,14 @@ export default async function PartenairesPage({ params }: Props) {
   const locale = (await params).locale as Locale;
   const [pages, partners] = await Promise.all([getPages(locale), getPartners(locale)]);
   const p = pages.partenaires;
+  const t = getDictionary(locale);
   const majors = partners.filter(x => !x.placeholder && (x.tier === 'main' || x.tier === 'kit'));
   const others = partners.filter(x => !x.placeholder && x.tier !== 'main' && x.tier !== 'kit');
 
   const tile = (x: PartnerVM) => {
     const body = (
       <>
-        <div className={`label ${styles.majorKind}`}>{TIER_LABEL[x.tier]}</div>
+        <div className={`label ${styles.majorKind}`}>{t.partners.tiers[x.tier]}</div>
         <div className={`display ${styles.majorName}`} style={{ color: x.tier === 'main' ? 'var(--accent)' : undefined }}>
           {x.logo ? <CmsImage img={x.logo} alt={x.name} className={styles.majorLogo} sizes="360px" /> : x.name}
         </div>
@@ -70,7 +65,7 @@ export default async function PartenairesPage({ params }: Props) {
               p.pitchTitle
             ) : (
               <>
-                Devenez <span>partenaire</span>
+                {t.partners.become} <span>{t.partners.highlight}</span>
               </>
             )}
           </h2>
@@ -92,7 +87,7 @@ export default async function PartenairesPage({ params }: Props) {
         )}
         <div style={{ marginTop: 40 }}>
           <Link href={href(locale, 'contact', 'objet=partenariat')} className="btn btn--primary">
-            Devenir partenaire <ArrowRight />
+            {t.cta} <ArrowRight />
           </Link>
         </div>
       </section>

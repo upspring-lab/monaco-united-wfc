@@ -1,12 +1,13 @@
 import Link from 'next/link';
-import { DICTIONARIES, href, type Locale, type PageKey } from '@/i18n/config';
+import { href, type Locale, type PageKey } from '@/i18n/config';
+import { getDictionary } from '@/i18n/dictionaries';
 import styles from './Footer.module.css';
 
 const CLUB: PageKey[] = ['accueil', 'academie', 'partenaires', 'contact'];
 const SEASON: PageKey[] = ['equipe', 'calendrier', 'classement', 'actus'];
 
 export default function Footer({ locale, socials }: { locale: Locale; socials: { label: string; url: string }[] }) {
-  const t = DICTIONARIES[locale];
+  const t = getDictionary(locale);
   const col = (title: string, pages: PageKey[]) => (
     <div className={styles.col}>
       <div className={`label ${styles.colTitle}`}>{title}</div>
@@ -23,15 +24,15 @@ export default function Footer({ locale, socials }: { locale: Locale; socials: {
         <div className={styles.col} style={{ gap: 16 }}>
           <img src="/assets/logo-white.png" alt="Monaco United" style={{ width: 84, height: 'auto' }} />
           <div className={styles.tagline}>
-            Football féminin
+            {t.footer.tagline[0]}
             <br />
-            Principauté de Monaco
+            {t.footer.tagline[1]}
           </div>
         </div>
-        {col('Club', CLUB)}
-        {col('Saison', SEASON)}
+        {col(t.footer.club, CLUB)}
+        {col(t.footer.season, SEASON)}
         <div className={styles.col}>
-          <div className={`label ${styles.colTitle}`}>Suivre le club</div>
+          <div className={`label ${styles.colTitle}`}>{t.footer.follow}</div>
           {socials.map(s => (
             <a key={s.label} href={s.url} className={styles.link} target="_blank" rel="noopener noreferrer">
               {s.label}
@@ -40,8 +41,8 @@ export default function Footer({ locale, socials }: { locale: Locale; socials: {
         </div>
       </div>
       <div className={`container ${styles.bottom}`}>
-        <span>© 2026 Monaco United</span>
-        <span>Mentions légales, confidentialité</span>
+        <span>© {new Date().getFullYear()} Monaco United</span>
+        <span>{t.footer.legal}</span>
       </div>
     </footer>
   );

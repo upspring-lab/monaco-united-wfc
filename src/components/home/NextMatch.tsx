@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { href, type Locale } from '@/i18n/config';
+import { getDictionary } from '@/i18n/dictionaries';
 import { nextMatch } from '@/lib/matches';
 import type { MatchVM } from '@/lib/types';
 import { useNow } from '@/lib/useNow';
@@ -10,9 +11,9 @@ import { ArrowRight } from '@/components/ui/icons';
 import styles from './Home.module.css';
 
 const pad = (n: number) => String(n).padStart(2, '0');
-const LABELS = ['Jours', 'Heures', 'Minutes', 'Secondes'];
 
 export default function NextMatch({ locale, matches, renderedAt }: { locale: Locale; matches: MatchVM[]; renderedAt: number }) {
+  const t = getDictionary(locale);
   const now = useNow();
   const next = nextMatch(matches, now ?? renderedAt);
   if (!next) return null;
@@ -25,13 +26,13 @@ export default function NextMatch({ locale, matches, renderedAt }: { locale: Loc
       <div className={`container ${styles.matchInner}`}>
         <div data-reveal="left" className={styles.matchTeams}>
           <img src="/assets/logo-white.png" alt="Monaco United" className={styles.matchCrest} />
-          <span className={`display ${styles.matchVs}`}>vs</span>
+          <span className={`display ${styles.matchVs}`}>{t.common.vs}</span>
           {next.oppCrest ? (
             <div className={styles.matchOppCrest}>
               <CmsImage img={next.oppCrest} sizes="84px" />
             </div>
           ) : (
-            <div className={`label ${styles.matchCrestPh}`}>Écusson</div>
+            <div className={`label ${styles.matchCrestPh}`}>{t.common.crest}</div>
           )}
           <div>
             <div className={`display ${styles.matchOpp}`}>{next.opp}</div>
@@ -40,8 +41,8 @@ export default function NextMatch({ locale, matches, renderedAt }: { locale: Loc
             </div>
           </div>
         </div>
-        <div data-stagger="1" className={styles.countdown} role="timer" aria-label="Compte à rebours avant le prochain match">
-          {LABELS.map((l, i) => (
+        <div data-stagger="1" className={styles.countdown} role="timer" aria-label={t.a11y.countdown}>
+          {t.countdown.map((l, i) => (
             <div key={l} className={styles.cdUnit}>
               <div className={`display ${styles.cdValue}`}>{values[i] != null ? pad(values[i]) : '--'}</div>
               <div className={`label ${styles.cdLabel}`}>{l}</div>
@@ -50,7 +51,7 @@ export default function NextMatch({ locale, matches, renderedAt }: { locale: Loc
         </div>
         <div className={styles.matchCta}>
           <Link href={href(locale, 'calendrier')} className="btn btn--white">
-            Calendrier <ArrowRight />
+            {t.common.calendar} <ArrowRight />
           </Link>
         </div>
       </div>

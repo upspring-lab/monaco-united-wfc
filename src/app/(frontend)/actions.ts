@@ -3,11 +3,13 @@
 import config from '@payload-config';
 import { getPayload } from 'payload';
 import { isLocale } from '@/i18n/config';
+import type { FormError } from '@/i18n/dictionaries';
 import { rateLimit } from '@/lib/rateLimit';
 
 export interface FormState {
   ok: boolean;
-  error?: string;
+  /** Code d'erreur, traduit côté client (dictionnaire « errors »). */
+  error?: FormError;
 }
 
 const SUBJECTS = ['Supporters', 'Partenariat', 'Presse', 'Académie'] as const;
@@ -23,7 +25,7 @@ const isBot = (fd: FormData) => str(fd, 'website', 200) !== '';
 
 export async function submitContact(_prev: FormState, fd: FormData): Promise<FormState> {
   if (isBot(fd)) return { ok: true };
-  if (!(await rateLimit('contact', 5, 10 * 60 * 1000))) return { ok: false, error: 'Trop de messages envoyés. Réessayez dans quelques minutes.' };
+  if (!(await rateLimit('contact', 5, 10 * 60 * 1000))) return { ok: false, error: 'rate' };
 
   const subject = str(fd, 'subject', 40);
   const name = str(fd, 'name', 120);
@@ -32,10 +34,10 @@ export async function submitContact(_prev: FormState, fd: FormData): Promise<For
   const message = str(fd, 'message', 5000);
   const locale = str(fd, 'locale', 2);
 
-  if (!SUBJECTS.includes(subject as (typeof SUBJECTS)[number])) return { ok: false, error: 'Objet invalide.' };
-  if (name.length < 2) return { ok: false, error: 'Merci d’indiquer votre nom.' };
-  if (!EMAIL_RE.test(email)) return { ok: false, error: 'Adresse e-mail invalide.' };
-  if (message.length < 10) return { ok: false, error: 'Votre message est trop court.' };
+  if (!SUBJECTS.includes(subject as (typeof SUBJECTS)[number])) return { ok: false, error: 'subject' };
+  if (name.length < 2) return { ok: false, error: 'name' };
+  if (!EMAIL_RE.test(email)) return { ok: false, error: 'email' };
+  if (message.length < 10) return { ok: false, error: 'message' };
 
   const payload = await getPayload({ config });
   await payload.create({
@@ -54,11 +56,11 @@ export async function submitContact(_prev: FormState, fd: FormData): Promise<For
 
 export async function subscribeNewsletter(_prev: FormState, fd: FormData): Promise<FormState> {
   if (isBot(fd)) return { ok: true };
-  if (!(await rateLimit('newsletter', 5, 10 * 60 * 1000))) return { ok: false, error: 'Trop de tentatives. Réessayez plus tard.' };
+  if (!(await rateLimit('newsletter', 5, 10 * 60 * 1000))) return { ok: false, error: 'rate' };
 
   const email = str(fd, 'email', 254).toLowerCase();
   const locale = str(fd, 'locale', 2);
-  if (!EMAIL_RE.test(email)) return { ok: false, error: 'Adresse e-mail invalide.' };
+  if (!EMAIL_RE.test(email)) return { ok: false, error: 'email' };
 
   const payload = await getPayload({ config });
   const existing = await payload.find({ collection: 'newsletter-subscribers', where: { email: { equals: email } }, limit: 1, depth: 0 });

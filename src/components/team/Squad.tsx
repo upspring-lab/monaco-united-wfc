@@ -1,6 +1,8 @@
 'use client';
 
 import { useLayoutEffect, useRef, useState } from 'react';
+import type { Locale } from '@/i18n/config';
+import { getDictionary } from '@/i18n/dictionaries';
 import type { Line, PlayerVM, StaffVM } from '@/lib/types';
 import CmsImage from '@/components/ui/CmsImage';
 import { EASE_OUT, prefersReducedMotion } from '@/components/motion/Motion';
@@ -10,15 +12,10 @@ import styles from './Squad.module.css';
 type View = 'players' | 'staff';
 type LineFilter = 'all' | Line;
 
-const LINE_TABS: [LineFilter, string][] = [
-  ['all', 'Toutes'],
-  ['G', 'Gardiennes'],
-  ['D', 'Défenseures'],
-  ['M', 'Milieux'],
-  ['A', 'Attaquantes'],
-];
+const LINES: LineFilter[] = ['all', 'G', 'D', 'M', 'A'];
 
-export default function Squad({ players, staff, staffNote }: { players: PlayerVM[]; staff: StaffVM[]; staffNote?: string }) {
+export default function Squad({ locale, players, staff, staffNote }: { locale: Locale; players: PlayerVM[]; staff: StaffVM[]; staffNote?: string }) {
+  const t = getDictionary(locale);
   const [view, setView] = useState<View>('players');
   const [line, setLine] = useState<LineFilter>('all');
   const gridRef = useRef<HTMLDivElement>(null);
@@ -49,17 +46,17 @@ export default function Squad({ players, staff, staffNote }: { players: PlayerVM
   }, [view, line]);
 
   const shown = players.filter(p => line === 'all' || p.line === line);
-  const lineIndex = LINE_TABS.findIndex(([k]) => k === line);
+  const lineIndex = LINES.indexOf(line);
 
   return (
     <section className={`container ${styles.section}`}>
       <div className={styles.controls}>
-        <div role="tablist" aria-label="Vue" className={styles.viewToggle}>
+        <div role="tablist" aria-label={t.a11y.view} className={styles.viewToggle}>
           <span className={styles.viewIndicator} style={{ transform: `translateX(${view === 'staff' ? '100%' : '0%'})` }} />
           {(
             [
-              ['players', 'Joueuses'],
-              ['staff', 'Staff'],
+              ['players', t.squad.players],
+              ['staff', t.squad.staff],
             ] as [View, string][]
           ).map(([k, label]) => (
             <button key={k} type="button" role="tab" aria-selected={view === k} onClick={() => setView(k)} className={`display ${styles.viewTab}`} data-on={view === k || undefined}>
@@ -68,11 +65,11 @@ export default function Squad({ players, staff, staffNote }: { players: PlayerVM
           ))}
         </div>
         {view === 'players' && (
-          <div className={styles.lineTabs} role="group" aria-label="Filtrer par poste">
+          <div className={styles.lineTabs} role="group" aria-label={t.a11y.filterLine}>
             <span className={styles.lineIndicator} style={{ transform: `translateX(${lineIndex * 100}%)` }} />
-            {LINE_TABS.map(([k, label]) => (
+            {LINES.map(k => (
               <button key={k} type="button" aria-pressed={line === k} onClick={() => setLine(k)} className={`label ${styles.lineTab}`} data-on={line === k || undefined}>
-                {label}
+                {t.squad.lines[k]}
               </button>
             ))}
           </div>
@@ -91,7 +88,7 @@ export default function Squad({ players, staff, staffNote }: { players: PlayerVM
             {staff.map(s => (
               <div key={s.id} className={styles.staffCard}>
                 <div className={`chevron ${styles.staffPhoto}`}>
-                  {s.img ? <CmsImage img={s.img} alt={s.name} className="zoom" sizes="(max-width: 600px) 90vw, 320px" /> : <span className="label">Photo à venir</span>}
+                  {s.img ? <CmsImage img={s.img} alt={s.name} className="zoom" sizes="(max-width: 600px) 90vw, 320px" /> : <span className="label">{t.squad.photoSoon}</span>}
                 </div>
                 <div>
                   <div className={`display ${styles.staffName}`}>{s.name}</div>

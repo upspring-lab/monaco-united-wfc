@@ -16,7 +16,7 @@ import { migrations } from './migrations';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const serverURL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
+const serverURL = process.env.SERVER_URL || 'http://localhost:3000';
 
 function required(name: string): string {
   const v = process.env[name];

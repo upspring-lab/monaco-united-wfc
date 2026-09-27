@@ -17,7 +17,7 @@ export default async function ClassementPage({ params }: Props) {
   return (
     <>
       <PageHead title={head.title} intro={head.intro} />
-      <Standings rows={standings.rows} note={standings.note} />
+      <Standings locale={locale} rows={standings.rows} note={standings.note} />
     </>
   );
 }

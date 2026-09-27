@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { DICTIONARIES, LOCALES, href, pageFromPath, type Locale, type PageKey } from '@/i18n/config';
+import { LOCALES, href, pageFromPath, type Locale, type PageKey } from '@/i18n/config';
+import { getDictionary } from '@/i18n/dictionaries';
 import { ChevronDown, Close, Menu } from '@/components/ui/icons';
 import styles from './Header.module.css';
 
@@ -17,7 +18,7 @@ interface MenuGroup {
 export default function Header({ locale }: { locale: Locale }) {
   const pathname = usePathname();
   const current = pageFromPath(pathname);
-  const t = DICTIONARIES[locale];
+  const t = getDictionary(locale);
   const [open, setOpen] = useState<string | null>(null);
   const [mobile, setMobile] = useState(false);
 
@@ -46,7 +47,7 @@ export default function Header({ locale }: { locale: Locale }) {
   return (
     <header className={styles.header}>
       <nav className={`container ${styles.nav}`}>
-        <Link href={href(locale, 'accueil')} aria-label="Monaco United, accueil" className={styles.brand}>
+        <Link href={href(locale, 'accueil')} aria-label={t.a11y.home} className={styles.brand}>
           <img src="/assets/logo-red.png" alt="" className={styles.logo} />
           <span className={`display ${styles.brandText}`}>
             Monaco
@@ -92,7 +93,7 @@ export default function Header({ locale }: { locale: Locale }) {
           })}
         </div>
 
-        <Link href={langHref} className={`label ${styles.lang}`} aria-label="Changer de langue" hrefLang={nextLocale}>
+        <Link href={langHref} className={`label ${styles.lang}`} aria-label={t.a11y.lang} hrefLang={nextLocale}>
           {locale.toUpperCase()}
         </Link>
         <Link href={partnerHref} className={`btn btn--primary btn--sm ${styles.cta}`}>
@@ -101,7 +102,7 @@ export default function Header({ locale }: { locale: Locale }) {
         <button
           type="button"
           className={styles.burger}
-          aria-label={mobile ? 'Fermer le menu' : 'Ouvrir le menu'}
+          aria-label={mobile ? t.a11y.closeMenu : t.a11y.openMenu}
           aria-expanded={mobile}
           onClick={() => setMobile(m => !m)}
         >

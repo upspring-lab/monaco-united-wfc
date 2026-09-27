@@ -1,3 +1,5 @@
+import type { Locale } from '@/i18n/config';
+import { getDictionary } from '@/i18n/dictionaries';
 import type { Result, StandingVM } from '@/lib/types';
 import styles from './Season.module.css';
 
@@ -7,21 +9,22 @@ const FORM_STYLE: Record<Result, { background: string; color: string }> = {
   D: { background: 'var(--grey-700)', color: '#fff' },
 };
 
-export default function Standings({ rows, note }: { rows: StandingVM[]; note: string }) {
+export default function Standings({ locale, rows, note }: { locale: Locale; rows: StandingVM[]; note: string }) {
+  const t = getDictionary(locale).table;
   return (
     <section className={`container container--narrow ${styles.section}`} style={{ overflowX: 'auto' }}>
       <table className={styles.table}>
         <thead>
           <tr className="label">
-            <th>#</th>
-            <th>Club</th>
-            <th className={styles.num}>J</th>
-            <th className={styles.num}>V</th>
-            <th className={styles.num}>N</th>
-            <th className={styles.num}>D</th>
-            <th className={styles.num}>Diff</th>
-            <th>Forme</th>
-            <th className={styles.num}>Pts</th>
+            <th>{t.pos}</th>
+            <th>{t.club}</th>
+            <th className={styles.num}>{t.p}</th>
+            <th className={styles.num}>{t.w}</th>
+            <th className={styles.num}>{t.d}</th>
+            <th className={styles.num}>{t.l}</th>
+            <th className={styles.num}>{t.gd}</th>
+            <th>{t.form}</th>
+            <th className={styles.num}>{t.pts}</th>
           </tr>
         </thead>
         <tbody data-stagger="1">
@@ -45,7 +48,7 @@ export default function Standings({ rows, note }: { rows: StandingVM[]; note: st
                   <div className={styles.form}>
                     {r.form.map((l, k) => (
                       <span key={k} style={FORM_STYLE[l]}>
-                        {l}
+                        {t.letters[l]}
                       </span>
                     ))}
                   </div>
@@ -59,11 +62,11 @@ export default function Standings({ rows, note }: { rows: StandingVM[]; note: st
       <div className={styles.legend}>
         <span>
           <i style={{ background: 'var(--accent)' }} />
-          Montée
+          {t.up}
         </span>
         <span>
           <i style={{ background: 'var(--grey-500)' }} />
-          Relégation
+          {t.down}
         </span>
         {note && <span className={styles.legendNote}>{note}</span>}
       </div>

@@ -17,7 +17,7 @@ export default async function EquipePage({ params }: Props) {
   return (
     <>
       <PageHead title={head.title} intro={head.intro} />
-      <Squad players={players} staff={staff} staffNote={pages.equipe?.staffNote ?? undefined} />
+      <Squad locale={locale} players={players} staff={staff} staffNote={pages.equipe?.staffNote ?? undefined} />
     </>
   );
 }

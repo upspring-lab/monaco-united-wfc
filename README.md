@@ -33,7 +33,7 @@ Le design de référence est dans `design_handoff_monaco_united/` : prototype HT
 - **Formulaires** : messages de contact (avec statut et note interne) et inscrits à la newsletter.
 - **Administration** : utilisateurs (rôles admin / éditeur) et réglages (coordonnées, réseaux sociaux, SEO, e-mail de notification).
 
-Chaque champ texte se traduit en FR / EN / IT. Si une traduction manque, c'est la version française qui s'affiche.
+Chaque champ texte se traduit en FR / EN / IT depuis l'admin. Si une traduction manque, c'est la version française qui s'affiche. Les libellés d'interface (boutons, filtres, dates, en-têtes du classement, messages d'erreur) sont dans `src/i18n/dictionaries.ts`.
 
 ### Performance
 
@@ -114,7 +114,7 @@ docker build -t monaco-united .
 docker run -p 3000:3000 \
   -e DATABASE_URI=postgres://… \
   -e PAYLOAD_SECRET=… \
-  -e NEXT_PUBLIC_SERVER_URL=https://www.monacounited.mc \
+  -e SERVER_URL=https://www.monacounited.mc \
   -v monaco-media:/data/media \
   monaco-united
 ```
@@ -122,6 +122,8 @@ docker run -p 3000:3000 \
 Tu peux aussi lancer la stack complète en local avec `PAYLOAD_SECRET=… docker compose --profile app up --build`.
 
 - Les migrations s'appliquent au démarrage.
+- **Ne jamais brancher un `npm run dev` sur la base de production.** Le dev modifie le schéma à la volée (mode *push*). Au démarrage suivant, la prod détecte ces modifications et attend une confirmation interactive avant d'appliquer ses migrations, ce qui bloque le démarrage.
+- `SERVER_URL` est lue au démarrage (et non au build) : la même image sert en staging et en production.
 - Le volume `/data/media` doit être persistant et sauvegardé, comme la base.
 - Place un reverse proxy HTTPS devant l'app, qui transmet `X-Real-IP` : le rate limit s'en sert.
 
@@ -131,6 +133,6 @@ Variables d'environnement : voir `.env.example`.
 
 - **Données FFF** : synchroniser automatiquement le calendrier, les scores et le classement (job planifié). Pour l'instant, la saisie se fait dans l'admin.
 - **Contenu réel** : effectif, staff, partenaires, écussons adverses, réseaux sociaux. Ce sont des placeholders de la maquette.
-- **Traductions** EN / IT du contenu : elles se saisissent dans l'admin. Les libellés d'interface (« Tout voir », les filtres…) sont encore en français.
+- **Traductions** EN / IT du contenu éditorial : elles se saisissent dans l'admin. Les libellés d'interface sont déjà traduits.
 - **Newsletter** : brancher un outil d'envoi (Brevo, Mailchimp…) sur la liste des inscrits.
 - **Montée en charge** : stockage objet S3 (Scaleway) pour les médias via `@payloadcms/storage-s3`, et rate limit partagé (Redis) si plusieurs instances.

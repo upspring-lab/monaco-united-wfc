@@ -24,10 +24,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <TypeBand line1={home.band.line1} line2={home.band.line2} />
       <PlayersStrip locale={locale} players={players} />
       <StandingsAcademy locale={locale} rows={standings.rows} academy={home.academy} />
-      <Videos videos={videos} note={home.videosNote} />
-      <Gallery items={home.gallery} />
+      <Videos locale={locale} videos={videos} note={home.videosNote} />
+      <Gallery locale={locale} items={home.gallery} />
       <Newsletter locale={locale} text={home.newsletterText} />
-      <PartnersStrip partners={partners} />
+      <PartnersStrip locale={locale} partners={partners} />
     </>
   );
 }

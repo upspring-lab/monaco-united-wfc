@@ -28,7 +28,7 @@ services:
       NODE_ENV: production
       DATABASE_URI: postgres://monaco:monaco@db:5432/monaco_united
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:?PAYLOAD_SECRET requis}
-      NEXT_PUBLIC_SERVER_URL: http://localhost:3000
+      SERVER_URL: http://localhost:3000
       MEDIA_DIR: /data/media
     ports:
       - '127.0.0.1:3000:3000'
