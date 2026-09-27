@@ -1,0 +1,5 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run ci",
+  "crons": [{ "path": "/cron/sync", "schedule": "30 21 * * *" }]
+}

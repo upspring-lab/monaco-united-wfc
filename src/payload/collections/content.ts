@@ -115,6 +115,7 @@ export const Clubs: CollectionConfig = {
     { name: 'name', label: 'Nom', type: 'text', required: true, unique: true },
     { name: 'crest', label: 'Écusson', type: 'upload', relationTo: 'media' },
     { name: 'isUs', label: "C'est Monaco United", type: 'checkbox', defaultValue: false, admin: { position: 'sidebar' } },
+    { name: 'externalId', label: 'Identifiant externe (synchro)', type: 'text', unique: true, index: true, admin: { position: 'sidebar', readOnly: true, description: 'Renseigné par la synchronisation automatique.' } },
   ],
 };
 
@@ -184,6 +185,14 @@ export const Matches: CollectionConfig = {
       ],
     },
     { name: 'note', label: 'Note', type: 'text', localized: true, admin: { description: 'Ex. « Match reporté ». Facultatif.' } },
+    { name: 'externalId', label: 'Identifiant externe (synchro)', type: 'text', unique: true, index: true, admin: { position: 'sidebar', readOnly: true, description: 'Renseigné par la synchronisation automatique.' } },
+    {
+      name: 'lockedFromSync',
+      label: 'Ne pas écraser par la synchro',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { position: 'sidebar', description: 'Cocher après une correction manuelle pour que la synchronisation ne la remplace pas.' },
+    },
   ],
 };
 

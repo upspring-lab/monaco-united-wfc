@@ -3,12 +3,15 @@ import type { NextConfig } from 'next';
 
 const isProd = process.env.NODE_ENV === 'production';
 
+// Hôte des médias quand ils sont servis depuis un bucket S3 (ex. Supabase Storage).
+const mediaOrigin = process.env.S3_PUBLIC_URL ? new URL(process.env.S3_PUBLIC_URL).origin : '';
+
 // CSP du site public. L'admin Payload (/admin) a ses propres besoins et n'est pas concerné.
 const csp = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline'" + (isProd ? '' : " 'unsafe-eval'"),
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  "img-src 'self' data: blob:" + (mediaOrigin ? ' ' + mediaOrigin : ''),
   "font-src 'self'",
   "connect-src 'self'",
   'frame-src https://www.google.com',
@@ -27,7 +30,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  // Image Docker autonome ; inutile sur Vercel qui gère son propre packaging.
+  output: process.env.VERCEL ? undefined : 'standalone',
   poweredByHeader: false,
   async redirects() {
     return [{ source: '/', destination: '/fr', permanent: false }];

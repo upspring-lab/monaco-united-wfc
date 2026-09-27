@@ -11,8 +11,9 @@ Le design de référence est dans `design_handoff_monaco_united/` : prototype HT
 | Site public | Next.js 16 (App Router), TypeScript, CSS Modules, rendu ISR |
 | Back-office | [Payload CMS 3](https://payloadcms.com), intégré à la même app sur `/admin` |
 | Base de données | PostgreSQL 17 (migrations versionnées dans `src/migrations/`) |
-| Médias | Upload Payload, redimensionnés et convertis en WebP par sharp (4 tailles, point focal) |
-| Déploiement | Image Docker Node standalone (port 3000) avec un volume pour les médias |
+| Médias | Upload Payload, redimensionnés et convertis en WebP par sharp (4 tailles, point focal). Stockés sur S3 (Supabase Storage) ou sur disque |
+| Hébergement | **Vercel + Supabase** (PostgreSQL + Storage). Alternative : image Docker Node standalone |
+| Synchro sportive | Tâche planifiée Vercel (`/cron/sync`), connecteur de données interchangeable (`src/sync/`) |
 
 ### Ce qui s'administre
 
@@ -107,32 +108,75 @@ src/
   i18n/config.ts           locales, slugs, libellés de navigation
 ```
 
-## Production
+## Déploiement : Vercel + Supabase
+
+### 1. Supabase
+
+1. Crée un projet (région **eu-west-3 Paris**, au plus près de Monaco).
+2. **Base de données** : dans *Connect > Transaction pooler*, copie l'URI (port **6543**) : c'est `DATABASE_URI`. Le pooler est indispensable, car les fonctions Vercel ouvrent beaucoup de connexions courtes et Vercel ne sait pas joindre la connexion directe, qui est en IPv6 uniquement.
+3. **Certificat TLS** : dans *Settings > Database > SSL Configuration*, télécharge le certificat et colle son contenu dans `DATABASE_CA_CERT`, en remplaçant les retours à la ligne par `\n`. La connexion est alors chiffrée **et** vérifiée.
+4. **Storage**
+   - Crée un bucket `media` **public** : les images du site sont publiques.
+   - Dans *Settings > Storage > S3 Connection*, génère une clé d'accès. Elle alimente `S3_ENDPOINT`, `S3_REGION`, `S3_ACCESS_KEY_ID` et `S3_SECRET_ACCESS_KEY`.
+   - `S3_PUBLIC_URL` vaut `https://<ref>.supabase.co/storage/v1/object/public/media`.
+
+**Sécurité Supabase** : Supabase expose le schéma `public` via son API Data, avec une clé `anon` publique. Après chaque migration, `npm run ci` active donc Row Level Security sur **toutes** les tables, sans politique (`src/payload/scripts/enable-rls.ts`) : les rôles `anon` et `authenticated` n'y voient rien, et Payload, propriétaire des tables, n'est pas concerné. Par précaution, désactive aussi l'API Data dans *Settings > API* : le site n'en a pas besoin.
+
+### 2. Vercel
+
+1. Importe le repo, framework **Next.js**. `vercel.json` fixe la commande de build à `npm run ci` : les migrations sont appliquées **avant** le build.
+2. Renseigne les variables d'environnement (Production et Preview) listées dans `.env.example` :
+   - `SERVER_URL` (le domaine final)
+   - `PAYLOAD_SECRET`
+   - `DATABASE_URI` et `DATABASE_CA_CERT`
+   - toutes les `S3_*`
+   - `CRON_SECRET`
+3. Déploie, puis crée le compte administrateur sur `https://<domaine>/admin`.
+4. Pour importer le contenu de départ (facultatif), lance `npm run seed` depuis ton poste, avec les variables de prod et `NODE_ENV=production`. Ce `NODE_ENV=production` est obligatoire : il empêche le mode *push* de modifier le schéma de la prod.
+
+Ce qui est adapté au serverless :
+- Pool de 3 connexions par instance.
+- Uploads directs navigateur → bucket, pour contourner la limite de 4,5 Mo par requête.
+- Images servies par le CDN Supabase, sans passer par une fonction.
+- Rate limit stocké en base, donc partagé entre les instances.
+- Les URL de preview Vercel sont autorisées automatiquement (CORS/CSRF).
+
+**Ne jamais brancher un `npm run dev` sur la base de production.** Le dev modifie le schéma à la volée (mode *push*), et les migrations de la prod se bloqueraient ensuite sur une confirmation interactive. Utilise un projet Supabase distinct pour le staging ou le dev.
+
+### Alternative : Docker
 
 ```bash
 docker build -t monaco-united .
-docker run -p 3000:3000 \
-  -e DATABASE_URI=postgres://… \
-  -e PAYLOAD_SECRET=… \
-  -e SERVER_URL=https://www.monacounited.mc \
-  -v monaco-media:/data/media \
-  monaco-united
+docker run -p 3000:3000 -e DATABASE_URI=… -e PAYLOAD_SECRET=… -e SERVER_URL=https://… -v monaco-media:/data/media monaco-united
 ```
 
-Tu peux aussi lancer la stack complète en local avec `PAYLOAD_SECRET=… docker compose --profile app up --build`.
-
 - Les migrations s'appliquent au démarrage.
-- **Ne jamais brancher un `npm run dev` sur la base de production.** Le dev modifie le schéma à la volée (mode *push*). Au démarrage suivant, la prod détecte ces modifications et attend une confirmation interactive avant d'appliquer ses migrations, ce qui bloque le démarrage.
-- `SERVER_URL` est lue au démarrage (et non au build) : la même image sert en staging et en production.
-- Le volume `/data/media` doit être persistant et sauvegardé, comme la base.
-- Place un reverse proxy HTTPS devant l'app, qui transmet `X-Real-IP` : le rate limit s'en sert.
+- Sans `S3_*`, les médias vont sur le volume `/data/media`, à sauvegarder comme la base.
+- Place un reverse proxy HTTPS devant, qui transmet `X-Real-IP`.
 
-Variables d'environnement : voir `.env.example`.
+## Synchronisation des données sportives
+
+La tâche planifiée `/cron/sync` (définie dans `vercel.json`) tourne chaque soir à 23 h 30 (heure de Monaco), après les matchs du dimanche. Vercel l'appelle avec `CRON_SECRET`, et toute autre requête reçoit une 401. À chaque passage :
+
+1. **Lecture, puis validation** de tout le lot auprès du fournisseur. Si la source est en panne ou renvoie des données incohérentes, **rien n'est écrit**.
+2. **Mise à jour idempotente**, par identifiant externe :
+   - les matchs déjà saisis à la main sont **adoptés** (rapprochés par jour et affiche) plutôt que dupliqués ;
+   - les clubs sont rapprochés par nom.
+3. **Respect des corrections manuelles** : un match coché *Ne pas écraser par la synchro* n'est jamais modifié. Le classement a la même option.
+4. **Journal** dans l'admin, sous *Saison > Synchronisation FFF* : dernière exécution, résultat, détail.
+5. **Purge du cache** du site, puis ménage des compteurs de rate limit.
+
+Test d'intégration du moteur, sur une base de dev seedée qu'il restaure à la fin :
+
+```bash
+npx payload run src/sync/__test__/run.test.ts
+```
+
+**Source des données** : la FFF bloque les accès automatisés à ses API (protection anti-bot Akamai). Le connecteur prévu est celui de **Score'n'co**, dont l'offre Premium donne une API officielle couvrant Monaco United. Il s'ajoute dans `src/sync/providers.ts` en implémentant `SyncProvider` (`src/sync/types.ts`). Tant que `SYNC_PROVIDER` est vide, la tâche ne fait rien et la saisie reste manuelle dans l'admin.
 
 ## Reste à faire
 
-- **Données FFF** : synchroniser automatiquement le calendrier, les scores et le classement (job planifié). Pour l'instant, la saisie se fait dans l'admin.
+- **Connecteur Score'n'co** : à écrire dès l'accès à leur API (voir *Synchronisation des données sportives*).
 - **Contenu réel** : effectif, staff, partenaires, écussons adverses, réseaux sociaux. Ce sont des placeholders de la maquette.
 - **Traductions** EN / IT du contenu éditorial : elles se saisissent dans l'admin. Les libellés d'interface sont déjà traduits.
 - **Newsletter** : brancher un outil d'envoi (Brevo, Mailchimp…) sur la liste des inscrits.
-- **Montée en charge** : stockage objet S3 (Scaleway) pour les médias via `@payloadcms/storage-s3`, et rate limit partagé (Redis) si plusieurs instances.

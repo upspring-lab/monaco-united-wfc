@@ -111,12 +111,14 @@ export interface Config {
     home: Home;
     pages: Page;
     standings: Standing;
+    'sync-status': SyncStatus;
     settings: Setting;
   };
   globalsSelect: {
     home: HomeSelect<false> | HomeSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     standings: StandingsSelect<false> | StandingsSelect<true>;
+    'sync-status': SyncStatusSelect<false> | SyncStatusSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
   };
   locale: 'fr' | 'en' | 'it';
@@ -195,6 +197,8 @@ export interface Media {
    * Décrit l'image pour les lecteurs d'écran. Laisser vide si purement décorative.
    */
   alt?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -286,6 +290,10 @@ export interface Club {
   name: string;
   crest?: (number | null) | Media;
   isUs?: boolean | null;
+  /**
+   * Renseigné par la synchronisation automatique.
+   */
+  externalId?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -307,6 +315,14 @@ export interface Match {
    * Ex. « Match reporté ». Facultatif.
    */
   note?: string | null;
+  /**
+   * Renseigné par la synchronisation automatique.
+   */
+  externalId?: string | null;
+  /**
+   * Cocher après une correction manuelle pour que la synchronisation ne la remplace pas.
+   */
+  lockedFromSync?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -593,6 +609,7 @@ export interface ClubsSelect<T extends boolean = true> {
   name?: T;
   crest?: T;
   isUs?: T;
+  externalId?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -610,6 +627,8 @@ export interface MatchesSelect<T extends boolean = true> {
   homeScore?: T;
   awayScore?: T;
   note?: T;
+  externalId?: T;
+  lockedFromSync?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -660,6 +679,8 @@ export interface AcademyCategoriesSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -901,6 +922,10 @@ export interface Page {
 export interface Standing {
   id: number;
   note?: string | null;
+  /**
+   * Cocher pour gérer le classement à la main.
+   */
+  lockedFromSync?: boolean | null;
   rows?:
     | {
         club: number | Club;
@@ -917,6 +942,22 @@ export interface Standing {
         id?: string | null;
       }[]
     | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Calendrier, scores et classement importés automatiquement chaque nuit. Lecture seule : écrit par la tâche planifiée.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sync-status".
+ */
+export interface SyncStatus {
+  id: number;
+  provider?: string | null;
+  lastRunAt?: string | null;
+  status?: ('ok' | 'error' | 'disabled') | null;
+  message?: string | null;
+  lastSuccessAt?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1052,6 +1093,7 @@ export interface PagesSelect<T extends boolean = true> {
  */
 export interface StandingsSelect<T extends boolean = true> {
   note?: T;
+  lockedFromSync?: T;
   rows?:
     | T
     | {
@@ -1065,6 +1107,20 @@ export interface StandingsSelect<T extends boolean = true> {
         form?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sync-status_select".
+ */
+export interface SyncStatusSelect<T extends boolean = true> {
+  provider?: T;
+  lastRunAt?: T;
+  status?: T;
+  message?: T;
+  lastSuccessAt?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

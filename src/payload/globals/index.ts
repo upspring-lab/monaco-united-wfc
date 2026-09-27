@@ -156,6 +156,13 @@ export const Standings: GlobalConfig = {
   fields: [
     { name: 'note', label: 'Mention sous le tableau', type: 'text', localized: true },
     {
+      name: 'lockedFromSync',
+      label: 'Ne pas écraser par la synchro',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { description: 'Cocher pour gérer le classement à la main.' },
+    },
+    {
       name: 'rows',
       label: 'Classement',
       type: 'array',
@@ -230,5 +237,33 @@ export const PagesContent: GlobalConfig = {
         { label: 'Contact', fields: [pageHead('contact', 'En-tête')] },
       ],
     },
+  ],
+};
+
+export const SyncStatus: GlobalConfig = {
+  slug: 'sync-status',
+  label: 'Synchronisation FFF',
+  admin: {
+    group: 'Saison',
+    description: 'Calendrier, scores et classement importés automatiquement chaque nuit. Lecture seule : écrit par la tâche planifiée.',
+  },
+  // Lecture staff, écriture uniquement par le serveur (API locale).
+  access: { read: staffOnly, update: () => false },
+  fields: [
+    { name: 'provider', label: 'Source', type: 'text', admin: { readOnly: true } },
+    { name: 'lastRunAt', label: 'Dernière exécution', type: 'date', admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } } },
+    {
+      name: 'status',
+      label: 'Résultat',
+      type: 'select',
+      options: [
+        { label: 'Succès', value: 'ok' },
+        { label: 'Erreur', value: 'error' },
+        { label: 'Non configurée', value: 'disabled' },
+      ],
+      admin: { readOnly: true },
+    },
+    { name: 'message', label: 'Détail', type: 'textarea', admin: { readOnly: true } },
+    { name: 'lastSuccessAt', label: 'Dernier succès', type: 'date', admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } } },
   ],
 };
