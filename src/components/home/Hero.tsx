@@ -1,13 +1,10 @@
+import type { Img } from '@/lib/types';
+import CmsImage from '@/components/ui/CmsImage';
 import styles from './Home.module.css';
 
-const PHOTOS = [
-  { src: '/assets/ph18.jpg', pos: '50% 20%' },
-  { src: '/assets/ph13.jpg', pos: '50% 25%' },
-  { src: '/assets/ph10.jpg', pos: '50% 18%' },
-];
-
 /** Hero « Bannière » : fanion rouge à découpe chevron + 3 photos pleine hauteur en parallax. */
-export default function Hero() {
+export default function Hero({ photos, tagline }: { photos: Img[]; tagline: string }) {
+  const lines = tagline.split('\n');
   return (
     <section className={styles.hero}>
       <div data-reveal="down" className={styles.pennant}>
@@ -15,15 +12,18 @@ export default function Hero() {
           <img src="/assets/logo-white.png" alt="Monaco United" className={styles.pennantLogo} />
         </h1>
         <div className={`label ${styles.pennantText}`}>
-          Football féminin
-          <br />
-          Principauté de Monaco
+          {lines.map((l, i) => (
+            <span key={i}>
+              {i > 0 && <br />}
+              {l}
+            </span>
+          ))}
         </div>
       </div>
       <div data-stagger="1" className={styles.heroPhotos}>
-        {PHOTOS.map(p => (
-          <div key={p.src} className={styles.heroPhoto}>
-            <img data-parallax="-5%,5%" data-axis="y" src={p.src} alt="" style={{ objectPosition: p.pos }} fetchPriority="high" />
+        {photos.slice(0, 3).map((p, i) => (
+          <div key={i} className={styles.heroPhoto}>
+            <CmsImage img={p} alt="" sizes="(max-width: 720px) 33vw, 25vw" priority parallax="-5%,5%" />
           </div>
         ))}
       </div>

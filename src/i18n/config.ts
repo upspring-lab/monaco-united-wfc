@@ -22,7 +22,11 @@ export const PAGE_SLUGS: Record<PageKey, string> = {
 
 export function href(locale: Locale, page: PageKey, query?: string): string {
   const slug = PAGE_SLUGS[page];
-  return `/${locale}/${slug ? slug + '/' : ''}${query ? '?' + query : ''}`;
+  return `/${locale}${slug ? '/' + slug : ''}${query ? '?' + query : ''}`;
+}
+
+export function articleHref(locale: Locale, slug: string): string {
+  return `/${locale}/${PAGE_SLUGS.actus}/${slug}`;
 }
 
 export function pageFromPath(pathname: string): PageKey {

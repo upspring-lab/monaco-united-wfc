@@ -1,4 +1,4 @@
-import { MU, TABLE, type Result } from '@/content/club';
+import type { Result, StandingVM } from '@/lib/types';
 import styles from './Season.module.css';
 
 const FORM_STYLE: Record<Result, { background: string; color: string }> = {
@@ -7,7 +7,7 @@ const FORM_STYLE: Record<Result, { background: string; color: string }> = {
   D: { background: 'var(--grey-700)', color: '#fff' },
 };
 
-export default function Standings() {
+export default function Standings({ rows, note }: { rows: StandingVM[]; note: string }) {
   return (
     <section className={`container container--narrow ${styles.section}`} style={{ overflowX: 'auto' }}>
       <table className={styles.table}>
@@ -25,9 +25,9 @@ export default function Standings() {
           </tr>
         </thead>
         <tbody data-stagger="1">
-          {TABLE.map((r, i) => {
-            const mu = r.team === MU;
-            const edge = i === 0 ? 'var(--accent)' : i >= 10 ? 'var(--grey-500)' : 'transparent';
+          {rows.map((r, i) => {
+            const mu = r.isUs;
+            const edge = i === 0 ? 'var(--accent)' : i >= rows.length - 2 ? 'var(--grey-500)' : 'transparent';
             return (
               <tr key={r.team} data-mu={mu || undefined}>
                 <td className={`display ${styles.pos}`} style={{ borderLeftColor: edge }}>
@@ -65,7 +65,7 @@ export default function Standings() {
           <i style={{ background: 'var(--grey-500)' }} />
           Relégation
         </span>
-        <span className={styles.legendNote}>Chiffres provisoires sauf Monaco United, à brancher sur le classement FFF.</span>
+        {note && <span className={styles.legendNote}>{note}</span>}
       </div>
     </section>
   );

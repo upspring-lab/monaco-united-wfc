@@ -1,7 +1,8 @@
 'use client';
 
 import { useLayoutEffect, useRef, useState } from 'react';
-import { SQUAD, STAFF, type Line } from '@/content/club';
+import type { Line, PlayerVM, StaffVM } from '@/lib/types';
+import CmsImage from '@/components/ui/CmsImage';
 import { EASE_OUT, prefersReducedMotion } from '@/components/motion/Motion';
 import PlayerCard from './PlayerCard';
 import styles from './Squad.module.css';
@@ -17,7 +18,7 @@ const LINE_TABS: [LineFilter, string][] = [
   ['A', 'Attaquantes'],
 ];
 
-export default function Squad() {
+export default function Squad({ players, staff, staffNote }: { players: PlayerVM[]; staff: StaffVM[]; staffNote?: string }) {
   const [view, setView] = useState<View>('players');
   const [line, setLine] = useState<LineFilter>('all');
   const gridRef = useRef<HTMLDivElement>(null);
@@ -47,7 +48,7 @@ export default function Squad() {
     });
   }, [view, line]);
 
-  const shown = SQUAD.filter(p => line === 'all' || p.line === line);
+  const shown = players.filter(p => line === 'all' || p.line === line);
   const lineIndex = LINE_TABS.findIndex(([k]) => k === line);
 
   return (
@@ -81,16 +82,16 @@ export default function Squad() {
       {view === 'players' ? (
         <div ref={gridRef} data-stagger="1" className={styles.grid}>
           {shown.map(p => (
-            <PlayerCard key={p.num} player={p} showNat />
+            <PlayerCard key={p.id} player={p} showNat />
           ))}
         </div>
       ) : (
         <>
           <div ref={gridRef} className={styles.grid}>
-            {STAFF.map(s => (
-              <div key={s.name} className={styles.staffCard}>
+            {staff.map(s => (
+              <div key={s.id} className={styles.staffCard}>
                 <div className={`chevron ${styles.staffPhoto}`}>
-                  {s.img ? <img src={s.img} alt={s.name} className="zoom" /> : <span className="label">Photo à venir</span>}
+                  {s.img ? <CmsImage img={s.img} alt={s.name} className="zoom" sizes="(max-width: 600px) 90vw, 320px" /> : <span className="label">Photo à venir</span>}
                 </div>
                 <div>
                   <div className={`display ${styles.staffName}`}>{s.name}</div>
@@ -99,7 +100,7 @@ export default function Squad() {
               </div>
             ))}
           </div>
-          <p className={styles.note}>Staff à compléter avec les noms et photos du club.</p>
+          {staffNote && <p className={styles.note}>{staffNote}</p>}
         </>
       )}
     </section>

@@ -1,12 +1,11 @@
 import Link from 'next/link';
-import { SOCIALS } from '@/content/club';
 import { DICTIONARIES, href, type Locale, type PageKey } from '@/i18n/config';
 import styles from './Footer.module.css';
 
 const CLUB: PageKey[] = ['accueil', 'academie', 'partenaires', 'contact'];
 const SEASON: PageKey[] = ['equipe', 'calendrier', 'classement', 'actus'];
 
-export default function Footer({ locale }: { locale: Locale }) {
+export default function Footer({ locale, socials }: { locale: Locale; socials: { label: string; url: string }[] }) {
   const t = DICTIONARIES[locale];
   const col = (title: string, pages: PageKey[]) => (
     <div className={styles.col}>
@@ -33,8 +32,8 @@ export default function Footer({ locale }: { locale: Locale }) {
         {col('Saison', SEASON)}
         <div className={styles.col}>
           <div className={`label ${styles.colTitle}`}>Suivre le club</div>
-          {SOCIALS.map(s => (
-            <a key={s.label} href={s.href} className={styles.link}>
+          {socials.map(s => (
+            <a key={s.label} href={s.url} className={styles.link} target="_blank" rel="noopener noreferrer">
               {s.label}
             </a>
           ))}

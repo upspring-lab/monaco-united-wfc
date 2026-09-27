@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { FIXTURES, nextMatch, resultOf } from '@/content/club';
+import { nextMatch, resultOf } from '@/lib/matches';
+import type { MatchVM } from '@/lib/types';
 import { useNow } from '@/lib/useNow';
 import styles from './Season.module.css';
 
@@ -16,15 +17,15 @@ const VENUES: [Venue, string][] = [
 
 const RESULT_LABEL = { V: 'Victoire', N: 'Nul', D: 'Défaite' } as const;
 
-export default function Fixtures({ buildNow }: { buildNow: number }) {
+export default function Fixtures({ matches, renderedAt }: { matches: MatchVM[]; renderedAt: number }) {
   const [venue, setVenue] = useState<Venue>('all');
-  const now = useNow(30_000) ?? buildNow;
-  const next = nextMatch(now);
+  const now = useNow(30_000) ?? renderedAt;
+  const next = nextMatch(matches, now);
 
-  const rows = FIXTURES.filter(f => venue === 'all' || (venue === 'home') === f.isHome).map(f => {
+  const rows = matches.filter(f => venue === 'all' || (venue === 'home') === f.isHome).map(f => {
     const r = resultOf(f);
     if (r) return { f, center: `${f.sh}-${f.sa}`, label: RESULT_LABEL[r], tone: (r === 'V' ? 'accent' : 'neutral') as Tone };
-    const isNext = f.id === next.id;
+    const isNext = f.id === next?.id;
     const pending = !isNext && f.ts < now;
     return {
       f,

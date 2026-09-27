@@ -1,0 +1,40 @@
+# Dev local : PostgreSQL seul (le site tourne avec `npm run dev`).
+# Stack complète type prod : `docker compose --profile app up --build`.
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: monaco
+      POSTGRES_PASSWORD: monaco
+      POSTGRES_DB: monaco_united
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U monaco -d monaco_united']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    profiles: ['app']
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URI: postgres://monaco:monaco@db:5432/monaco_united
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?PAYLOAD_SECRET requis}
+      NEXT_PUBLIC_SERVER_URL: http://localhost:3000
+      MEDIA_DIR: /data/media
+    ports:
+      - '127.0.0.1:3000:3000'
+    volumes:
+      - media:/data/media
+
+volumes:
+  pgdata:
+  media:

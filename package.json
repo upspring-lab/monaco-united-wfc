@@ -5,18 +5,39 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "npx serve out -l 8080",
-    "typecheck": "tsc --noEmit"
+    "start": "node .next/standalone/server.js",
+    "typecheck": "tsc --noEmit",
+    "payload": "payload",
+    "generate:types": "payload generate:types",
+    "generate:importmap": "payload generate:importmap",
+    "migrate:create": "payload migrate:create",
+    "migrate": "payload migrate",
+    "seed": "payload run src/payload/seed/index.ts",
+    "db:up": "docker compose up -d db"
   },
   "dependencies": {
+    "@payloadcms/db-postgres": "^3.90.2",
+    "@payloadcms/email-nodemailer": "^3.90.2",
+    "@payloadcms/next": "^3.90.2",
+    "@payloadcms/richtext-lexical": "^3.90.2",
+    "@payloadcms/translations": "^3.90.2",
+    "@payloadcms/ui": "^3.90.2",
+    "graphql": "^16.14.2",
     "next": "^16.3.6",
+    "payload": "^3.90.2",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "server-only": "^0.0.1",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "@types/node": "^26.6.3",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "typescript": "^7.0.2"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=20.9"
   }
 }

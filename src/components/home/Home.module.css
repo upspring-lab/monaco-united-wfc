@@ -557,3 +557,46 @@
   background: #fff;
   font-size: 24px;
 }
+
+/* ---------- Ajouts CMS ---------- */
+
+.matchOppCrest {
+  flex: none;
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+}
+.matchOppCrest img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+a.video {
+  color: #fff;
+  text-decoration: none;
+}
+a.video:hover {
+  color: #fff;
+}
+a.partnerTile {
+  text-decoration: none;
+}
+.partnerLogo {
+  max-width: 70%;
+  max-height: 64px;
+  object-fit: contain;
+}
+.trap {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.nlError {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}

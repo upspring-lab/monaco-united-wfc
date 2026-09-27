@@ -2,4 +2,8 @@ node_modules
 .next
 out
 .git
+.env
+.env*.local
+media
 design_handoff_monaco_united
+.claude
