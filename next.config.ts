@@ -4,7 +4,12 @@ import type { NextConfig } from 'next';
 const isProd = process.env.NODE_ENV === 'production';
 
 // Hôte des médias quand ils sont servis depuis un bucket S3 (ex. Supabase Storage).
-const mediaOrigin = process.env.S3_PUBLIC_URL ? new URL(process.env.S3_PUBLIC_URL).origin : '';
+const mediaOrigin = [
+  process.env.S3_PUBLIC_URL ? new URL(process.env.S3_PUBLIC_URL).origin : '',
+  process.env.BLOB_READ_WRITE_TOKEN ? 'https://*.public.blob.vercel-storage.com' : '',
+]
+  .filter(Boolean)
+  .join(' ');
 
 // CSP du site public. L'admin Payload (/admin) a ses propres besoins et n'est pas concerné.
 const csp = [

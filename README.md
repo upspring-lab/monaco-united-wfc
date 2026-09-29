@@ -110,38 +110,28 @@ src/
 
 ## Déploiement : Vercel + Supabase
 
-### 1. Supabase
+Tout passe par les intégrations Vercel : aucune chaîne de connexion ni clé de stockage à copier à la main.
 
-1. Crée un projet (région **eu-west-3 Paris**, au plus près de Monaco).
-2. **Base de données** : dans *Connect > Transaction pooler*, copie l'URI (port **6543**) : c'est `DATABASE_URI`. Le pooler est indispensable, car les fonctions Vercel ouvrent beaucoup de connexions courtes et Vercel ne sait pas joindre la connexion directe, qui est en IPv6 uniquement.
-3. **Certificat TLS** : dans *Settings > Database > SSL Configuration*, télécharge le certificat et colle son contenu dans `DATABASE_CA_CERT`, en remplaçant les retours à la ligne par `\n`. La connexion est alors chiffrée **et** vérifiée.
-4. **Storage**
-   - Crée un bucket `media` **public** : les images du site sont publiques.
-   - Dans *Settings > Storage > S3 Connection*, génère une clé d'accès. Elle alimente `S3_ENDPOINT`, `S3_REGION`, `S3_ACCESS_KEY_ID` et `S3_SECRET_ACCESS_KEY`.
-   - `S3_PUBLIC_URL` vaut `https://<ref>.supabase.co/storage/v1/object/public/media`.
+1. **Vercel > Add New > Project** : importe le repo GitHub. Laisse les réglages par défaut : `vercel.json` fixe la commande de build à `npm run ci`, qui applique les migrations **avant** le build.
+2. **Base** : dans le projet Vercel, *Storage* (ou *Integrations*) > **Supabase** > connecte le projet Supabase existant. Vercel injecte `POSTGRES_URL` (pooler en mode transaction), que le code utilise directement.
+3. **Photos** : *Storage* > **Create > Blob** > connecte-le au projet. Vercel injecte `BLOB_READ_WRITE_TOKEN`.
+4. **Secrets** : *Settings > Environment Variables* > **Import .env**, avec le contenu de `.env.vercel.local` (`PAYLOAD_SECRET`, `CRON_SECRET`).
+5. **Redeploy**, puis crée le compte administrateur sur `https://<domaine>/admin`.
+6. Pour importer le contenu de départ (facultatif) : `vercel env pull .env.production.local`, puis `NODE_ENV=production npm run seed` avec ces variables. Ce `NODE_ENV=production` est obligatoire : il empêche le mode *push* de modifier le schéma de la prod.
 
-**Sécurité Supabase** : Supabase expose le schéma `public` via son API Data, avec une clé `anon` publique. Après chaque migration, `npm run ci` active donc Row Level Security sur **toutes** les tables, sans politique (`src/payload/scripts/enable-rls.ts`) : les rôles `anon` et `authenticated` n'y voient rien, et Payload, propriétaire des tables, n'est pas concerné. Par précaution, désactive aussi l'API Data dans *Settings > API* : le site n'en a pas besoin.
+Ce que le code gère tout seul :
+- **URL du site** : `SERVER_URL` si défini, sinon le domaine de production Vercel.
+- **TLS vérifié** vers Supabase, grâce à l'autorité racine publique de Supabase embarquée dans le repo (`src/payload/certs/supabase.ts`).
+- **Pool** de 3 connexions par instance.
+- **Photos** servies par le CDN Vercel Blob, et uploads directs navigateur → Blob (sans la limite de 4,5 Mo).
+- **Rate limit** stocké en base, donc partagé entre les instances.
+- **Previews** : les URL de preview sont autorisées pour CORS/CSRF.
 
-### 2. Vercel
-
-1. Importe le repo, framework **Next.js**. `vercel.json` fixe la commande de build à `npm run ci` : les migrations sont appliquées **avant** le build.
-2. Renseigne les variables d'environnement (Production et Preview) listées dans `.env.example` :
-   - `SERVER_URL` (le domaine final)
-   - `PAYLOAD_SECRET`
-   - `DATABASE_URI` et `DATABASE_CA_CERT`
-   - toutes les `S3_*`
-   - `CRON_SECRET`
-3. Déploie, puis crée le compte administrateur sur `https://<domaine>/admin`.
-4. Pour importer le contenu de départ (facultatif), lance `npm run seed` depuis ton poste, avec les variables de prod et `NODE_ENV=production`. Ce `NODE_ENV=production` est obligatoire : il empêche le mode *push* de modifier le schéma de la prod.
-
-Ce qui est adapté au serverless :
-- Pool de 3 connexions par instance.
-- Uploads directs navigateur → bucket, pour contourner la limite de 4,5 Mo par requête.
-- Images servies par le CDN Supabase, sans passer par une fonction.
-- Rate limit stocké en base, donc partagé entre les instances.
-- Les URL de preview Vercel sont autorisées automatiquement (CORS/CSRF).
+**Sécurité Supabase** : Supabase expose le schéma `public` via son API Data, avec une clé `anon` publique. Après chaque migration, `npm run ci` active donc Row Level Security sur **toutes** les tables, sans politique (`src/payload/scripts/enable-rls.ts`) : les rôles `anon` et `authenticated` n'y voient rien, et Payload, propriétaire des tables, n'est pas concerné.
 
 **Ne jamais brancher un `npm run dev` sur la base de production.** Le dev modifie le schéma à la volée (mode *push*), et les migrations de la prod se bloqueraient ensuite sur une confirmation interactive. Utilise un projet Supabase distinct pour le staging ou le dev.
+
+Autres hébergeurs : à la place des intégrations, renseigne `DATABASE_URI` (et `DATABASE_CA_CERT` si l'autorité n'est pas Supabase), plus les `S3_*` pour un bucket S3. Voir `.env.example`.
 
 ### Alternative : Docker
 
