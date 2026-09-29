@@ -115,8 +115,8 @@ Tout passe par les intégrations Vercel : aucune chaîne de connexion ni clé de
 1. **Vercel > Add New > Project** : importe le repo GitHub. Laisse les réglages par défaut : `vercel.json` fixe la commande de build à `npm run ci`, qui applique les migrations **avant** le build.
 2. **Base** : dans le projet Vercel, *Storage* (ou *Integrations*) > **Supabase** > connecte le projet Supabase existant. Vercel injecte `POSTGRES_URL` (pooler en mode transaction), que le code utilise directement.
 3. **Photos** : *Storage* > **Create > Blob** > connecte-le au projet. Vercel injecte `BLOB_READ_WRITE_TOKEN`.
-4. **Secrets** : *Settings > Environment Variables* > **Import .env**, avec le contenu de `.env.vercel.local` (`PAYLOAD_SECRET`, `CRON_SECRET`).
-5. **Redeploy**, puis crée le compte administrateur sur `https://<domaine>/admin`.
+4. **Redeploy**, puis crée le compte administrateur sur `https://<domaine>/admin`.
+5. Facultatif : `PAYLOAD_SECRET` (sinon dérivé de `SUPABASE_JWT_SECRET`, injecté par l'intégration) et `CRON_SECRET` (requis seulement une fois la synchro sportive branchée).
 6. Pour importer le contenu de départ (facultatif) : `vercel env pull .env.production.local`, puis `NODE_ENV=production npm run seed` avec ces variables. Ce `NODE_ENV=production` est obligatoire : il empêche le mode *push* de modifier le schéma de la prod.
 
 Ce que le code gère tout seul :

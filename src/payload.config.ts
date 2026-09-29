@@ -1,3 +1,4 @@
+import { createHmac } from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { postgresAdapter } from '@payloadcms/db-postgres';
@@ -33,7 +34,12 @@ function required(name: string): string {
   return v;
 }
 
-const secret = required('PAYLOAD_SECRET');
+// PAYLOAD_SECRET, ou à défaut une clé dédiée dérivée (HMAC) du secret injecté par l'intégration Supabase de Vercel.
+// Régénérer ce secret côté Supabase déconnecte simplement les admins.
+const secret =
+  process.env.PAYLOAD_SECRET ||
+  (process.env.SUPABASE_JWT_SECRET ? createHmac('sha256', process.env.SUPABASE_JWT_SECRET).update('monaco-united/payload-secret/v1').digest('base64url') : '');
+if (!secret) throw new Error("Variable d'environnement manquante : PAYLOAD_SECRET (ou SUPABASE_JWT_SECRET via l'intégration Supabase)");
 if (process.env.NODE_ENV === 'production' && secret.length < 32) {
   throw new Error('PAYLOAD_SECRET doit faire au moins 32 caractères en production.');
 }
